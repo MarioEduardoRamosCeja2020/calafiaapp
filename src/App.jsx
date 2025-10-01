@@ -129,7 +129,6 @@ function App() {
 
           {/* Formulario + Resultados lado a lado */}
           <Grid container spacing={2}>
-            {/* FORMULARIO */}
             <Grid item xs={12} md={3}>
               <Paper
                 elevation={3}
