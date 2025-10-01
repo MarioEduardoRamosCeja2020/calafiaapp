@@ -6,11 +6,25 @@ import {
   TableBody,
   Typography,
   Box,
-  Button
+  Button,
+  TableContainer,
+  Paper,
 } from "@mui/material";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import GridOnIcon from "@mui/icons-material/GridOn";
 
+// Solo estas columnas se mostrarán en la tabla
+const visibleFields = [
+  "tipoDocu",
+  "fechFac",
+  "recoEn",
+  "entrEn",
+  "formPago",
+  "numeInfo",
+  "esta_avan",
+];
+
+// Formatear nombre de columna
 const formatHeader = (key) => {
   return key
     .replace(/_/g, " ")
@@ -18,93 +32,117 @@ const formatHeader = (key) => {
 };
 
 function ResultsTable({ data }) {
-  if (!data || data.length === 0) {
-    return (
-      <Typography variant="body2" align="center" sx={{ mt: 1 }}>
-        No results yet
-      </Typography>
-    );
-  }
-
-  const allKeys = Object.keys(data[0]);
-
-  // URLs remotas (reemplaza con tus URLs reales)
   const pdfUrl = "https://example.com/report.pdf";
   const excelUrl = "https://example.com/report.xlsx";
 
   return (
-    <Box sx={{ overflowX: "auto" }}>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            {allKeys.map((key) => (
-              <TableCell key={key}>{formatHeader(key)}</TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map((row, rowIndex) => (
-            <TableRow key={rowIndex}>
-              {allKeys.map((key) => (
-                <TableCell key={key}>
-                  {row[key] !== null && row[key] !== "" ? (
-                    key.startsWith("fech") && row[key] ? (
-                      new Date(row[key]).toLocaleString()
-                    ) : (
-                      row[key]
-                    )
-                  ) : (
-                    ""
-                  )}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-      {/* Botones PDF y Excel */}
-      <Box
+    <Box
+      sx={{
+        width: "100%",
+        minHeight: 300,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+      }}
+    >
+      <TableContainer
+        component={Paper}
         sx={{
-          display: "flex",
-          justifyContent: "center",
-          gap: 2,
-          mt: 2,
-          flexWrap: "wrap",
+          flexGrow: 1,
+          overflowX: "auto",
+          maxHeight: "50vh",
+          borderRadius: 2,
+          minHeight: 250,
         }}
       >
-        <Button
-          variant="contained"
-          color="error"
-          startIcon={<PictureAsPdfIcon />}
-          href={"file://192.168.1.11/stctca/CFDI/CartasPorte/TQPA/2014/06/TCA-TQPA25000.pdf"}
-          target="_blank"
-          sx={{
-            fontWeight: "bold",
-            textTransform: "none",
-            px: 3,
-            py: 1,
-          }}
-        >
-          View PDF
-        </Button>
+        {data && data.length > 0 ? (
+          <Table size="small" stickyHeader>
+            <TableHead>
+              <TableRow>
+                {visibleFields.map((key) => (
+                  <TableCell
+                    key={key}
+                    sx={{
+                      backgroundColor: "#f5f5f5",
+                      fontWeight: "bold",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {formatHeader(key)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map((row, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  {visibleFields.map((key) => (
+                    <TableCell key={key}>
+                      {row[key] !== null && row[key] !== "" ? (
+                        key.startsWith("fech") ? (
+                          new Date(row[key]).toLocaleString()
+                        ) : (
+                          row[key]
+                        )
+                      ) : (
+                        "-"
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <Box
+            sx={{
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              px: 2,
+            }}
+          >
+            <Typography variant="body2" align="center">
+              Realiza una búsqueda para ver resultados.
+            </Typography>
+          </Box>
+        )}
+      </TableContainer>
 
-        <Button
-          variant="contained"
-          color="success"
-          startIcon={<GridOnIcon />}
-          href={excelUrl}
-          target="_blank"
+      {data && data.length > 0 && (
+        <Box
           sx={{
-            fontWeight: "bold",
-            textTransform: "none",
-            px: 3,
-            py: 1,
+            display: "flex",
+            justifyContent: "center",
+            gap: 2,
+            mt: 2,
+            flexWrap: "wrap",
           }}
         >
-          View Excel
-        </Button>
-      </Box>
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<PictureAsPdfIcon />}
+            href={pdfUrl}
+            target="_blank"
+            sx={{ textTransform: "none", px: 3, py: 1, fontWeight: "bold" }}
+          >
+            Ver PDF
+          </Button>
+
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<GridOnIcon />}
+            href={excelUrl}
+            target="_blank"
+            sx={{ textTransform: "none", px: 3, py: 1, fontWeight: "bold" }}
+          >
+            Ver Excel
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }
