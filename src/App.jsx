@@ -6,13 +6,14 @@ import {
   Typography,
   Grid,
   useMediaQuery,
-  useTheme,
   Paper,
   CssBaseline,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+
 import HomeIcon from "@mui/icons-material/Home";
 import StoreIcon from "@mui/icons-material/Store";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import EmojiObjects from '@mui/icons-material/EmojiObjects';
 
 import Carousel from "./components/carousel/Carousel";
 import SearchSerieFolioForm from "./components/SearchSerieFolioForm/SearchSerieFolioForm";
@@ -20,7 +21,8 @@ import ResultsTable from "./components/ResultsTable/ResultsTable";
 import BranchesMap from "./components/BranchesMap/BranchesMap";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
-import TruckLoader from "./components/TruckLoader"; // 🚛 animación
+import TruckLoader from "./components/TruckLoader";
+import MissionVision from "./components/MissionVision";
 
 import "leaflet/dist/leaflet.css";
 
@@ -37,30 +39,29 @@ function App() {
     setValue(newValue);
   };
 
-    const handleSearch = async ({ serie, folio }) => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `http://localhost:3000/results/searchBySerieFolio?kindReport=carta%20porte&serie=${serie}&folio=${folio}`,
-          {
-            method: "GET",
-            cache: "no-store",
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch results");
+  const handleSearch = async ({ serie, folio }) => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `http://localhost:3000/results/searchBySerieFolio?kindReport=carta%20porte&serie=${serie}&folio=${folio}`,
+        {
+          method: "GET",
+          cache: "no-store",
+        }
+      );
+      if (!response.ok) throw new Error("Failed to fetch results");
 
-        const data = await response.json();
-        setResults(data);
-        setHasSearched(true); // 👈 Marca que ya se hizo la primera búsqueda
-      } catch (error) {
-        console.error("Error en la petición:", error);
-        setResults([]);
-        setHasSearched(true); // 👈 Aún si falla, ya se intentó
-      } finally {
-        setLoading(false);
-      }
-    };
-
+      const data = await response.json();
+      setResults(data);
+      setHasSearched(true);
+    } catch (error) {
+      console.error("Error en la petición:", error);
+      setResults([]);
+      setHasSearched(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -68,7 +69,7 @@ function App() {
       <Header />
       <Box sx={{ height: 64 }} />
 
-      {/* MENÚ DE TABS */}
+      {/* Menú de Tabs */}
       <Paper
         elevation={3}
         sx={{
@@ -111,14 +112,13 @@ function App() {
         >
           <Tab icon={<HomeIcon />} iconPosition="start" label="Home" />
           <Tab icon={<StoreIcon />} iconPosition="start" label="Sucursales" />
-          <Tab icon={<MoreHorizIcon />} iconPosition="start" label="Other" />
+          <Tab icon={<EmojiObjects />} iconPosition="start" label="Misión y Visión" />
         </Tabs>
       </Paper>
 
-      {/* CONTENIDO SEGÚN TAB SELECCIONADO */}
+      {/* Contenido según tab */}
       {value === 0 && (
         <Box sx={{ p: 3 }}>
-          {/* Carrusel */}
           <Grid container spacing={2} sx={{ mb: 2 }}>
             <Grid item xs={12} md={8}>
               <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
@@ -127,7 +127,6 @@ function App() {
             </Grid>
           </Grid>
 
-          {/* Formulario + Resultados lado a lado */}
           <Grid container spacing={2}>
             <Grid item xs={12} md={3}>
               <Paper
@@ -148,86 +147,50 @@ function App() {
               </Paper>
             </Grid>
 
-            {/* TABLA / LOADER */}
-{(hasSearched || loading) && (
-  // <Grid item xs={12} md={9}>
-  //   <Paper
-  //     elevation={3}
-  //     sx={{
-  //       p: 2,
-  //       borderRadius: 2,
-  //       minHeight: 300,
-  //       maxHeight: "70vh",
-  //       overflowY: "auto",
-  //     }}
-  //   >
-  //     {loading ? (
-  //       <>
-  //         <Typography variant="h6" align="center" gutterBottom>
-  //           Cargando resultados...
-  //         </Typography>
-  //         <TruckLoader />
-  //       </>
-  //     ) : results.length > 0 ? (
-  //       <>
-  //         <Typography variant="h6" align="center" gutterBottom>
-  //           Resultados
-  //         </Typography>
-  //         <ResultsTable data={results} />
-  //       </>
-  //     ) : (
-  //       <>
-  //         <Typography variant="h6" align="center" gutterBottom>
-  //           Resultados
-  //         </Typography>
-  //         <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-  //           No se encontraron resultados.
-  //         </Typography>
-  //       </>
-  //     )}
-  //   </Paper>
-  // </Grid>
-  <Grid item xs={12} md={9}>
-  <Paper
-    elevation={3}
-    sx={{
-      p: 2,
-      borderRadius: 2,
-      height: "100%", // Hace que use todo el espacio disponible
-      minHeight: 400, // Forzamos una altura que funcione bien
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "flex-start", // Para alinear contenido arriba
-    }}
-  >
-    <Typography variant="h6" align="center" gutterBottom>
-      Resultados
-    </Typography>
+            {(hasSearched || loading) && (
+              <Grid item xs={12} md={9}>
+                <Paper
+                  elevation={3}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    minHeight: 400,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <Typography variant="h6" align="center" gutterBottom>
+                    Resultados
+                  </Typography>
 
-    <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      {loading ? (
-        <TruckLoader />
-      ) : hasSearched ? (
-        results.length > 0 ? (
-          <ResultsTable data={results} />
-        ) : (
-          <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-            No se encontraron resultados.
-          </Typography>
-        )
-      ) : (
-        <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-          Realiza una búsqueda para ver resultados.
-        </Typography>
-      )}
-    </Box>
-  </Paper>
-</Grid>
-
-)}
-
-
-
+                  <Box
+                    sx={{
+                      flex: 1,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {loading ? (
+                      <TruckLoader />
+                    ) : hasSearched ? (
+                      results.length > 0 ? (
+                        <ResultsTable data={results} />
+                      ) : (
+                        <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                          No se encontraron resultados.
+                        </Typography>
+                      )
+                    ) : (
+                      <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                        Realiza una búsqueda para ver resultados.
+                      </Typography>
+                    )}
+                  </Box>
+                </Paper>
+              </Grid>
+            )}
           </Grid>
         </Box>
       )}
@@ -239,8 +202,16 @@ function App() {
       )}
 
       {value === 2 && (
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h5">Other option content</Typography>
+        <Box
+          sx={{
+            p: 3,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+          }}
+        >
+          <MissionVision />
         </Box>
       )}
 
