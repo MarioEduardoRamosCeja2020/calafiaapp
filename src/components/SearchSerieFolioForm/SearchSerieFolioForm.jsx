@@ -37,14 +37,21 @@ function SearchSerieFolioForm({ onSearch }) {
         gap: 2,
       }}
     >
-      <TextField
-        label="Serie"
-        value={serie}
-        onChange={(e) => setSerie(e.target.value.toUpperCase())}
-        inputProps={{ maxLength: 8 }}
-        required
-        fullWidth
-      />
+        <TextField
+          label="Serie"
+          value={serie}
+
+          onChange={(e) => {
+            const input = e.target.value.toUpperCase();
+            // Solo letras A-Z (sin acentos ni números)
+            const onlyLetters = input.replace(/[^A-Z]/g, "");
+            setSerie(onlyLetters);
+          }}
+          inputProps={{ maxLength: 8 }}
+          required
+          fullWidth
+        />
+
 
       <TextField
         label="Folio"

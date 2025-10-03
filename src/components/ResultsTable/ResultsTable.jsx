@@ -124,7 +124,7 @@ function ResultsTable({ data }) {
             variant="contained"
             color="error"
             startIcon={<PictureAsPdfIcon />}
-            href={pdfUrl}
+            href={"http://45.190.243.90/stctca/CFDI/CartasPorte/TQPA/2014/06/TCA-TQPA25000.pdf"}
             target="_blank"
             sx={{ textTransform: "none", px: 3, py: 1, fontWeight: "bold" }}
           >
