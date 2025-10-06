@@ -7,14 +7,14 @@ const Header = () => {
       position="fixed"
       sx={{
         backgroundColor: "#ffffff",
-        color: "#000000",
+        color: "#00004e",
         boxShadow: 2,
         zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
         <Typography variant="h6">
-          <img src="/logo.png" alt="Logo" style={{ height: 40 }} />
+          <img src="/img/logo.png" alt="Logo" style={{ height: 40 }} />
         </Typography>
         <Button variant="outlined" color="red">
           Login

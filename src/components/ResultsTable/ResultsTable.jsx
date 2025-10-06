@@ -1,3 +1,4 @@
+import React, { useMemo } from "react";
 import {
   Table,
   TableHead,
@@ -9,11 +10,23 @@ import {
   Button,
   TableContainer,
   Paper,
+  Chip,
+  Fade,
 } from "@mui/material";
+
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import GridOnIcon from "@mui/icons-material/GridOn";
 
-// Solo estas columnas se mostrarán en la tabla
+import DescriptionIcon from "@mui/icons-material/Description";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import DirectionsBusIcon from "@mui/icons-material/DirectionsBus";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import WarningIcon from "@mui/icons-material/Warning";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+
+import Indicadores from "./Indicadores";
+
+// Columnas visibles
 const visibleFields = [
   "tipoDocu",
   "fechFac",
@@ -24,16 +37,90 @@ const visibleFields = [
   "esta_avan",
 ];
 
-// Formatear nombre de columna
-const formatHeader = (key) => {
-  return key
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+// Formato de encabezados
+const formatHeader = (key) =>
+  key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+// Mapeo de estado a índice para mostrar progreso
+const mapEstadoToPasoIndex = (estado) => {
+  const estadoNormalizado = estado?.toUpperCase() || "";
+  const pasos = [
+    "DOCUMENTO",
+    "CARGA",
+    "TRANSITO",
+    "ARRIBÓ",
+    "PENDIENTE",
+    "ENTREGA",
+  ];
+  return pasos.indexOf(estadoNormalizado);
+};
+
+// Renderizar chips con íconos y color
+const renderPasoChip = (estado) => {
+  const estadoNormalizado = estado?.toUpperCase() || "";
+
+  const mapa = {
+    DOCUMENTO: {
+      label: "Documento",
+      icon: <DescriptionIcon />,
+      color: "default",
+    },
+    CARGA: {
+      label: "Carga",
+      icon: <LocalShippingIcon />,
+      color: "warning",
+    },
+    TRANSITO: {
+      label: "Tránsito",
+      icon: <DirectionsBusIcon />,
+      color: "success",
+    },
+    ARRIBÓ: {
+      label: "Arribó",
+      icon: <LocationOnIcon />,
+      color: "info",
+    },
+    PENDIENTE: {
+      label: "Pendiente",
+      icon: <WarningIcon />,
+      color: "error",
+    },
+    ENTREGA: {
+      label: "Entrega",
+      icon: <CheckCircleIcon />,
+      color: "primary",
+    },
+  };
+
+  const paso = mapa[estadoNormalizado];
+
+  return paso ? (
+    <Fade in timeout={500}>
+      <Chip
+        icon={paso.icon}
+        label={paso.label}
+        color={paso.color}
+        size="small"
+        sx={{
+          fontWeight: "bold",
+          minWidth: 110,
+        }}
+      />
+    </Fade>
+  ) : (
+    estado
+  );
 };
 
 function ResultsTable({ data }) {
-  const pdfUrl = "https://example.com/report.pdf";
-  const excelUrl = "https://example.com/report.xlsx";
+  const pdfUrl =
+    "http://45.190.243.90/stctca/CFDI/CartasPorte/TQPA/2014/06/TCA-TQPA25000.pdf";
+  const excelUrl = "https://example.com/report.xlsx"; // Actualiza si es necesario
+
+  // Paso actual basado en la primera fila
+  const pasoActual = useMemo(() => {
+    return data?.length > 0 ? mapEstadoToPasoIndex(data[0].esta_avan) : null;
+  }, [data]);
 
   return (
     <Box
@@ -42,9 +129,14 @@ function ResultsTable({ data }) {
         minHeight: 300,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
+        gap: 3,
+        px: 2,
       }}
     >
+      {/* Indicadores de progreso */}
+      <Indicadores pasoActual={pasoActual} />
+
+      {/* Tabla de resultados */}
       <TableContainer
         component={Paper}
         sx={{
@@ -55,7 +147,7 @@ function ResultsTable({ data }) {
           minHeight: 250,
         }}
       >
-        {data && data.length > 0 ? (
+        {data?.length > 0 ? (
           <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
@@ -73,13 +165,16 @@ function ResultsTable({ data }) {
                 ))}
               </TableRow>
             </TableHead>
+
             <TableBody>
               {data.map((row, rowIndex) => (
                 <TableRow key={rowIndex}>
                   {visibleFields.map((key) => (
                     <TableCell key={key}>
                       {row[key] !== null && row[key] !== "" ? (
-                        key.startsWith("fech") ? (
+                        key === "esta_avan" ? (
+                          renderPasoChip(row[key])
+                        ) : key.startsWith("fech") ? (
                           new Date(row[key]).toLocaleString()
                         ) : (
                           row[key]
@@ -110,7 +205,8 @@ function ResultsTable({ data }) {
         )}
       </TableContainer>
 
-      {data && data.length > 0 && (
+      {/* Botones PDF / Excel */}
+      {data?.length > 0 && (
         <Box
           sx={{
             display: "flex",
@@ -124,7 +220,7 @@ function ResultsTable({ data }) {
             variant="contained"
             color="error"
             startIcon={<PictureAsPdfIcon />}
-            href={"http://45.190.243.90/stctca/CFDI/CartasPorte/TQPA/2014/06/TCA-TQPA25000.pdf"}
+            href={pdfUrl}
             target="_blank"
             sx={{ textTransform: "none", px: 3, py: 1, fontWeight: "bold" }}
           >

@@ -74,7 +74,7 @@ function App() {
         elevation={3}
         sx={{
           width: "100%",
-          bgcolor: "#001f3f",
+          bgcolor: "#00004e",
           p: 1,
           borderRadius: 0,
           mb: 2,
@@ -104,7 +104,7 @@ function App() {
             },
             ".Mui-selected": {
               fontWeight: "bold",
-              backgroundColor: "#2ecc71",
+              backgroundColor: "#4B9C5F",
               borderRadius: 1,
               color: "#ffffff !important",
             },
