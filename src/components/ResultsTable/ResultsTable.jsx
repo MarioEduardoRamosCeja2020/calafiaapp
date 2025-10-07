@@ -1,22 +1,17 @@
 import React, { useMemo } from "react";
 import {
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Typography,
   Box,
-  Button,
-  TableContainer,
   Paper,
+  Button,
   Chip,
   Fade,
+  Divider,
+  Stack,
+  Grid,
 } from "@mui/material";
 
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import GridOnIcon from "@mui/icons-material/GridOn";
-
 import DescriptionIcon from "@mui/icons-material/Description";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DirectionsBusIcon from "@mui/icons-material/DirectionsBus";
@@ -26,85 +21,33 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import Indicadores from "./Indicadores";
 
-// Columnas visibles
-const visibleFields = [
-  "tipoDocu",
-  "fechFac",
-  "recoEn",
-  "entrEn",
-  "formPago",
-  "numeInfo",
-  "esta_avan",
-];
-
-// Formato de encabezados
-const formatHeader = (key) =>
-  key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-
-// Mapeo de estado a índice para mostrar progreso
+// Mapea estado a índice de paso
 const mapEstadoToPasoIndex = (estado) => {
-  const estadoNormalizado = estado?.toUpperCase() || "";
-  const pasos = [
-    "DOCUMENTO",
-    "CARGA",
-    "TRANSITO",
-    "ARRIBÓ",
-    "PENDIENTE",
-    "ENTREGA",
-  ];
-  return pasos.indexOf(estadoNormalizado);
+  const pasos = ["DOCUMENTO", "CARGA", "TRANSITO", "ARRIBÓ", "PENDIENTE", "ENTREGA"];
+  return pasos.indexOf(estado?.toUpperCase() || "");
 };
 
-// Renderizar chips con íconos y color
+// Renderiza chip de estado con ícono
 const renderPasoChip = (estado) => {
   const estadoNormalizado = estado?.toUpperCase() || "";
-
   const mapa = {
-    DOCUMENTO: {
-      label: "Documento",
-      icon: <DescriptionIcon />,
-      color: "default",
-    },
-    CARGA: {
-      label: "Carga",
-      icon: <LocalShippingIcon />,
-      color: "warning",
-    },
-    TRANSITO: {
-      label: "Tránsito",
-      icon: <DirectionsBusIcon />,
-      color: "success",
-    },
-    ARRIBÓ: {
-      label: "Arribó",
-      icon: <LocationOnIcon />,
-      color: "info",
-    },
-    PENDIENTE: {
-      label: "Pendiente",
-      icon: <WarningIcon />,
-      color: "error",
-    },
-    ENTREGA: {
-      label: "Entrega",
-      icon: <CheckCircleIcon />,
-      color: "primary",
-    },
+    DOCUMENTO: { label: "Documento", icon: <DescriptionIcon />, color: "default" },
+    CARGA: { label: "Carga", icon: <LocalShippingIcon />, color: "warning" },
+    TRANSITO: { label: "Tránsito", icon: <DirectionsBusIcon />, color: "success" },
+    ARRIBÓ: { label: "Arribó", icon: <LocationOnIcon />, color: "info" },
+    PENDIENTE: { label: "Pendiente", icon: <WarningIcon />, color: "error" },
+    ENTREGA: { label: "Entrega", icon: <CheckCircleIcon />, color: "primary" },
   };
 
   const paso = mapa[estadoNormalizado];
-
   return paso ? (
     <Fade in timeout={500}>
       <Chip
         icon={paso.icon}
         label={paso.label}
         color={paso.color}
-        size="small"
-        sx={{
-          fontWeight: "bold",
-          minWidth: 110,
-        }}
+        size="medium"
+        sx={{ fontWeight: "bold" }}
       />
     </Fade>
   ) : (
@@ -112,117 +55,92 @@ const renderPasoChip = (estado) => {
   );
 };
 
-function ResultsTable({ data }) {
-  const pdfUrl =
-    "http://45.190.243.90/stctca/CFDI/CartasPorte/TQPA/2014/06/TCA-TQPA25000.pdf";
-  const excelUrl = "https://example.com/report.xlsx"; // Actualiza si es necesario
+// Función para descargar XML
+const handleDownload = (xmlUrl) => {
+  fetch(`http://www.grupocalafia.com.mx/${xmlUrl}`)
+    .then((response) => {
+      if (!response.ok) throw new Error("No se pudo descargar el archivo");
+      return response.blob();
+    })
+    .then((blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = xmlUrl.split("/").pop();
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(() => alert("Error al descargar el archivo XML."));
+};
 
-  // Paso actual basado en la primera fila
+function ResultsTable({ data }) {
   const pasoActual = useMemo(() => {
     return data?.length > 0 ? mapEstadoToPasoIndex(data[0].esta_avan) : null;
   }, [data]);
 
+  if (!data || data.length === 0) {
+    return (
+      <Box sx={{ py: 4, textAlign: "center" }}>
+        <Typography variant="body1">Realiza una búsqueda para ver resultados.</Typography>
+      </Box>
+    );
+  }
+
+  const row = data[0];
+  const { numeInfo, formPago, fechFac, recoEn, entrEn, esta_avan, rutaPDF, rutaXML } = row;
+
   return (
-    <Box
-      sx={{
-        width: "100%",
-        minHeight: 300,
-        display: "flex",
-        flexDirection: "column",
-        gap: 3,
-        px: 2,
-      }}
-    >
-      {/* Indicadores de progreso */}
+    <Box sx={{ width: "100%", px: 2 }}>
+      {/* Indicadores visuales */}
       <Indicadores pasoActual={pasoActual} />
 
-      {/* Tabla de resultados */}
-      <TableContainer
-        component={Paper}
-        sx={{
-          flexGrow: 1,
-          overflowX: "auto",
-          maxHeight: "50vh",
-          borderRadius: 2,
-          minHeight: 250,
-        }}
-      >
-        {data?.length > 0 ? (
-          <Table size="small" stickyHeader>
-            <TableHead>
-              <TableRow>
-                {visibleFields.map((key) => (
-                  <TableCell
-                    key={key}
-                    sx={{
-                      backgroundColor: "#f5f5f5",
-                      fontWeight: "bold",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {formatHeader(key)}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
+      {/* Documento visual */}
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 3, mt: 3 }}>
+        <Typography variant="h6" fontWeight="bold" gutterBottom>
+          Carta Porte: {numeInfo}
+        </Typography>
 
-            <TableBody>
-              {data.map((row, rowIndex) => (
-                <TableRow key={rowIndex}>
-                  {visibleFields.map((key) => (
-                    <TableCell key={key}>
-                      {row[key] !== null && row[key] !== "" ? (
-                        key === "esta_avan" ? (
-                          renderPasoChip(row[key])
-                        ) : key.startsWith("fech") ? (
-                          new Date(row[key]).toLocaleString()
-                        ) : (
-                          row[key]
-                        )
-                      ) : (
-                        "-"
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : (
-          <Box
-            sx={{
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              px: 2,
-            }}
-          >
-            <Typography variant="body2" align="center">
-              Realiza una búsqueda para ver resultados.
-            </Typography>
-          </Box>
-        )}
-      </TableContainer>
+        <Divider sx={{ my: 2 }} />
 
-      {/* Botones PDF / Excel */}
-      {data?.length > 0 && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            gap: 2,
-            mt: 2,
-            flexWrap: "wrap",
-          }}
-        >
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle2" color="text.secondary">Modalidad de pago</Typography>
+            <Typography>{formPago || "-"}</Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle2" color="text.secondary">Fecha y hora de expedición</Typography>
+            <Typography>{fechFac ? new Date(fechFac).toLocaleString() : "-"}</Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle2" color="text.secondary">Recolectado en</Typography>
+            <Typography>{recoEn || "-"}</Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle2" color="text.secondary">Entregado en</Typography>
+            <Typography>{entrEn || "-"}</Typography>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Typography variant="subtitle2" color="text.secondary">Estado de avance</Typography>
+            {renderPasoChip(esta_avan)}
+          </Grid>
+        </Grid>
+
+        {/* Botones */}
+        <Stack direction="row" spacing={2} sx={{ mt: 4 }} justifyContent="center">
           <Button
             variant="contained"
             color="error"
             startIcon={<PictureAsPdfIcon />}
-            href={pdfUrl}
+            href={`http://www.grupocalafia.com.mx/${rutaPDF}`}
             target="_blank"
-            sx={{ textTransform: "none", px: 3, py: 1, fontWeight: "bold" }}
+            rel="noopener noreferrer"
+            sx={{ px: 3, py: 1 }}
           >
             Ver PDF
           </Button>
@@ -230,15 +148,14 @@ function ResultsTable({ data }) {
           <Button
             variant="contained"
             color="success"
-            startIcon={<GridOnIcon />}
-            href={excelUrl}
-            target="_blank"
-            sx={{ textTransform: "none", px: 3, py: 1, fontWeight: "bold" }}
+            startIcon={<DescriptionIcon />}
+            onClick={() => handleDownload(rutaXML)}
+            sx={{ px: 3, py: 1 }}
           >
-            Ver Excel
+            Descargar XML
           </Button>
-        </Box>
-      )}
+        </Stack>
+      </Paper>
     </Box>
   );
 }
