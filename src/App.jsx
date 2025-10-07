@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Tabs,
@@ -13,7 +14,7 @@ import { useTheme } from "@mui/material/styles";
 
 import HomeIcon from "@mui/icons-material/Home";
 import StoreIcon from "@mui/icons-material/Store";
-import EmojiObjects from '@mui/icons-material/EmojiObjects';
+import EmojiObjects from "@mui/icons-material/EmojiObjects";
 
 import Carousel from "./components/carousel/Carousel";
 import SearchSerieFolioForm from "./components/SearchSerieFolioForm/SearchSerieFolioForm";
@@ -52,6 +53,8 @@ function App() {
       if (!response.ok) throw new Error("Failed to fetch results");
 
       const data = await response.json();
+      console.log("✅ Datos recibidos:", data);
+
       setResults(data);
       setHasSearched(true);
     } catch (error) {
@@ -116,28 +119,28 @@ function App() {
         </Tabs>
       </Paper>
 
-      {/* Contenido según tab */}
+      {/* Contenido por tab */}
       {value === 0 && (
         <Box sx={{ p: 3 }}>
+          {/* Carrusel */}
           <Grid container spacing={2} sx={{ mb: 2 }}>
-            <Grid item xs={12} md={8}>
+            <Grid item xs={12}>
               <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
                 <Carousel />
               </Paper>
             </Grid>
           </Grid>
 
+          {/* Formulario + Resultados */}
           <Grid container spacing={2}>
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={4}>
               <Paper
                 elevation={3}
                 sx={{
                   p: 2,
                   borderRadius: 2,
-                  height: "100%",
-                  position: "sticky",
-                  top: 140,
                   backgroundColor: "#f9f9f9",
+                  height: "100%",
                 }}
               >
                 <Typography variant="h6" align="center" gutterBottom>
@@ -147,17 +150,17 @@ function App() {
               </Paper>
             </Grid>
 
-            {(hasSearched || loading) && (
-              <Grid item xs={12} md={9}>
+            <Grid item xs={12} md={8}>
+              {(hasSearched || loading) && (
                 <Paper
                   elevation={3}
                   sx={{
                     p: 2,
                     borderRadius: 2,
                     minHeight: 400,
+                    height: "100%",
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "flex-start",
                   }}
                 >
                   <Typography variant="h6" align="center" gutterBottom>
@@ -175,32 +178,30 @@ function App() {
                     {loading ? (
                       <TruckLoader />
                     ) : hasSearched ? (
-                      results.length > 0 ? (
-                        <ResultsTable data={results} />
+                      results.estatus && results.estatus.length > 0 ? (
+                        <ResultsTable estatus={results.estatus} detalles={results.detalles} />
                       ) : (
-                        <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                          No se encontraron resultados.
-                        </Typography>
+                        <Typography>No se encontraron resultados</Typography>
                       )
                     ) : (
-                      <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                        Realiza una búsqueda para ver resultados.
-                      </Typography>
+                      <Typography>Realiza una búsqueda</Typography>
                     )}
                   </Box>
                 </Paper>
-              </Grid>
-            )}
+              )}
+            </Grid>
           </Grid>
         </Box>
       )}
 
+      {/* Sucursales */}
       {value === 1 && (
         <Box sx={{ p: 3 }}>
           <BranchesMap />
         </Box>
       )}
 
+      {/* Misión y Visión */}
       {value === 2 && (
         <Box
           sx={{
