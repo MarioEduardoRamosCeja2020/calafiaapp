@@ -73,126 +73,125 @@ function App() {
       <Box sx={{ height: 64 }} />
 
       {/* Menú de Tabs */}
-      <Paper
-        elevation={3}
-        sx={{
-          width: "100%",
-          bgcolor: "#00004e",
-          p: 1,
-          borderRadius: 0,
-          mb: 2,
-          position: "sticky",
-          top: "64px",
-          zIndex: 1000,
-        }}
-      >
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          variant={isSmall ? "scrollable" : "fullWidth"}
-          scrollButtons={isSmall ? "auto" : false}
-          centered={!isSmall}
-          textColor="inherit"
-          indicatorColor="secondary"
+<Paper
+  elevation={3}
+  sx={{
+    width: "100%",
+    bgcolor: "#00004e",
+    p: 1,
+    borderRadius: 0,
+    mb: 2,
+    position: "sticky",
+    top: "64px",
+    zIndex: 1000,
+  }}
+>
+  <Tabs
+    value={value}
+    onChange={handleChange}
+    variant={isSmall ? "scrollable" : "fullWidth"}
+    scrollButtons={isSmall ? "auto" : false}
+    centered={!isSmall}
+    textColor="inherit"
+    indicatorColor="secondary"
+    sx={{
+      ".MuiTabs-indicator": {
+        backgroundColor: "green",
+      },
+      ".MuiTab-root": {
+        fontSize: isSmall ? "0.75rem" : "1rem",
+        minHeight: isSmall ? 48 : 60,
+        px: isSmall ? 1 : 3,
+        py: 1,
+        color: "#ffffff",
+      },
+      ".Mui-selected": {
+        fontWeight: "bold",
+        backgroundColor: "#4B9C5F",
+        borderRadius: 1,
+        color: "#ffffff !important",
+      },
+    }}
+  >
+    <Tab icon={<HomeIcon />} iconPosition="start" label="Home" />
+    <Tab icon={<StoreIcon />} iconPosition="start" label="Sucursales" />
+    <Tab icon={<EmojiObjects />} iconPosition="start" label="Misión y Visión" />
+  </Tabs>
+</Paper>
+
+{/* Contenido por tab */}
+{value === 0 && (
+  <Box sx={{ p: 3 }}>
+    {/* Mostrar carrusel solo si NO se ha hecho búsqueda */}
+    {!hasSearched && (
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        <Grid item xs={12}>
+          <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
+            <Carousel />
+          </Paper>
+        </Grid>
+      </Grid>
+    )}
+
+    {/* Formulario + Resultados */}
+    <Grid container spacing={2}>
+      <Grid item xs={12} md={4}>
+        <Paper
+          elevation={3}
           sx={{
-            ".MuiTabs-indicator": {
-              backgroundColor: "green",
-            },
-            ".MuiTab-root": {
-              fontSize: isSmall ? "0.75rem" : "1rem",
-              minHeight: isSmall ? 48 : 60,
-              px: isSmall ? 1 : 3,
-              py: 1,
-              color: "#ffffff",
-            },
-            ".Mui-selected": {
-              fontWeight: "bold",
-              backgroundColor: "#4B9C5F",
-              borderRadius: 1,
-              color: "#ffffff !important",
-            },
+            p: 2,
+            borderRadius: 2,
+            backgroundColor: "#f9f9f9",
+            height: "100%",
           }}
         >
-          <Tab icon={<HomeIcon />} iconPosition="start" label="Home" />
-          <Tab icon={<StoreIcon />} iconPosition="start" label="Sucursales" />
-          <Tab icon={<EmojiObjects />} iconPosition="start" label="Misión y Visión" />
-        </Tabs>
-      </Paper>
+          <Typography variant="h6" align="center" gutterBottom>
+            Buscar Carta Porte
+          </Typography>
+          <SearchSerieFolioForm onSearch={handleSearch} />
+        </Paper>
+      </Grid>
 
-      {/* Contenido por tab */}
-      {value === 0 && (
-        <Box sx={{ p: 3 }}>
-          {/* Carrusel */}
-          <Grid container spacing={2} sx={{ mb: 2 }}>
-            <Grid item xs={12}>
-              <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
-                <Carousel />
-              </Paper>
-            </Grid>
-          </Grid>
+      <Grid item xs={12} md={8}>
+        {(hasSearched || loading) && (
+          <Paper
+            elevation={3}
+            sx={{
+              p: 2,
+              borderRadius: 2,
+              minHeight: 400,
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Typography variant="h6" align="center" gutterBottom>
+              Resultados
+            </Typography>
 
-          {/* Formulario + Resultados */}
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={4}>
-              <Paper
-                elevation={3}
-                sx={{
-                  p: 2,
-                  borderRadius: 2,
-                  backgroundColor: "#f9f9f9",
-                  height: "100%",
-                }}
-              >
-                <Typography variant="h6" align="center" gutterBottom>
-                  Buscar Carta Porte
-                </Typography>
-                <SearchSerieFolioForm onSearch={handleSearch} />
-              </Paper>
-            </Grid>
-
-            <Grid item xs={12} md={8}>
-              {(hasSearched || loading) && (
-                <Paper
-                  elevation={3}
-                  sx={{
-                    p: 2,
-                    borderRadius: 2,
-                    minHeight: 400,
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <Typography variant="h6" align="center" gutterBottom>
-                    Resultados
-                  </Typography>
-
-                  <Box
-                    sx={{
-                      flex: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {loading ? (
-                      <TruckLoader />
-                    ) : hasSearched ? (
-                      results.estatus && results.estatus.length > 0 ? (
-                        <ResultsTable estatus={results.estatus} detalles={results.detalles} />
-                      ) : (
-                        <Typography>No se encontraron resultados</Typography>
-                      )
-                    ) : (
-                      <Typography>Realiza una búsqueda</Typography>
-                    )}
-                  </Box>
-                </Paper>
+            <Box
+              sx={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {loading ? (
+                <TruckLoader />
+              ) : results.estatus && results.estatus.length > 0 ? (
+                <ResultsTable estatus={results.estatus} detalles={results.detalles} />
+              ) : (
+                <Typography>No se encontraron resultados</Typography>
               )}
-            </Grid>
-          </Grid>
-        </Box>
-      )}
+            </Box>
+          </Paper>
+        )}
+      </Grid>
+    </Grid>
+  </Box>
+)}
+
 
       {/* Sucursales */}
       {value === 1 && (
