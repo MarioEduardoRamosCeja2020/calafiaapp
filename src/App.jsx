@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Tabs,
@@ -45,16 +44,11 @@ function App() {
       setLoading(true);
       const response = await fetch(
         `http://localhost:3000/results/searchBySerieFolio?kindReport=carta%20porte&serie=${serie}&folio=${folio}`,
-        {
-          method: "GET",
-          cache: "no-store",
-        }
+        { method: "GET", cache: "no-store" }
       );
       if (!response.ok) throw new Error("Failed to fetch results");
 
       const data = await response.json();
-      console.log("✅ Datos recibidos:", data);
-
       setResults(data);
       setHasSearched(true);
     } catch (error) {
@@ -67,135 +61,159 @@ function App() {
   };
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <CssBaseline />
       <Header />
       <Box sx={{ height: 64 }} />
 
       {/* Menú de Tabs */}
-<Paper
-  elevation={3}
-  sx={{
-    width: "100%",
-    bgcolor: "#00004e",
-    p: 1,
-    borderRadius: 0,
-    mb: 2,
-    position: "sticky",
-    top: "64px",
-    zIndex: 1000,
-  }}
->
-  <Tabs
-    value={value}
-    onChange={handleChange}
-    variant={isSmall ? "scrollable" : "fullWidth"}
-    scrollButtons={isSmall ? "auto" : false}
-    centered={!isSmall}
-    textColor="inherit"
-    indicatorColor="secondary"
-    sx={{
-      ".MuiTabs-indicator": {
-        backgroundColor: "green",
-      },
-      ".MuiTab-root": {
-        fontSize: isSmall ? "0.75rem" : "1rem",
-        minHeight: isSmall ? 48 : 60,
-        px: isSmall ? 1 : 3,
-        py: 1,
-        color: "#ffffff",
-      },
-      ".Mui-selected": {
-        fontWeight: "bold",
-        backgroundColor: "#4B9C5F",
-        borderRadius: 1,
-        color: "#ffffff !important",
-      },
-    }}
-  >
-    <Tab icon={<HomeIcon />} iconPosition="start" label="Home" />
-    <Tab icon={<StoreIcon />} iconPosition="start" label="Sucursales" />
-    <Tab icon={<EmojiObjects />} iconPosition="start" label="Misión y Visión" />
-  </Tabs>
-</Paper>
-
-{/* Contenido por tab */}
-{value === 0 && (
-  <Box sx={{ p: 3 }}>
-    {/* Mostrar carrusel solo si NO se ha hecho búsqueda */}
-    {!hasSearched && (
-      <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12}>
-          <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
-            <Carousel />
-          </Paper>
-        </Grid>
-      </Grid>
-    )}
-
-    {/* Formulario + Resultados */}
-    <Grid container spacing={2}>
-      <Grid item xs={12} md={4}>
-        <Paper
-          elevation={3}
+      <Paper
+        elevation={3}
+        sx={{
+          width: "100%",
+          bgcolor: "#00004e",
+          p: 1,
+          borderRadius: 0,
+          mb: 2,
+          position: "sticky",
+          top: "64px",
+          zIndex: 1000,
+        }}
+      >
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          variant={isSmall ? "scrollable" : "fullWidth"}
+          scrollButtons={isSmall ? "auto" : false}
+          centered={!isSmall}
+          textColor="inherit"
+          indicatorColor="secondary"
           sx={{
-            p: 2,
-            borderRadius: 2,
-            backgroundColor: "#f9f9f9",
-            height: "100%",
+            ".MuiTabs-indicator": { backgroundColor: "green" },
+            ".MuiTab-root": {
+              fontSize: isSmall ? "0.75rem" : "1rem",
+              minHeight: isSmall ? 48 : 60,
+              px: isSmall ? 1 : 3,
+              py: 1,
+              color: "#ffffff",
+            },
+            ".Mui-selected": {
+              fontWeight: "bold",
+              backgroundColor: "#4B9C5F",
+              borderRadius: 1,
+              color: "#ffffff !important",
+            },
           }}
         >
-          <Typography variant="h6" align="center" gutterBottom>
-            Buscar Carta Porte
-          </Typography>
-          <SearchSerieFolioForm onSearch={handleSearch} />
-        </Paper>
-      </Grid>
+          <Tab icon={<HomeIcon />} iconPosition="start" label="Home" />
+          <Tab icon={<StoreIcon />} iconPosition="start" label="Sucursales" />
+          <Tab icon={<EmojiObjects />} iconPosition="start" label="Misión y Visión" />
+        </Tabs>
+      </Paper>
 
-      <Grid item xs={12} md={8}>
-        {(hasSearched || loading) && (
-          <Paper
-            elevation={3}
+      {/* Contenido por tab */}
+      {value === 0 && (
+        <Box sx={{ p: 3, flex: 1, display: "flex", flexDirection: "column" }}>
+          {!hasSearched && (
+            <Grid container spacing={2} sx={{ mb: 2 }}>
+              <Grid item xs={12}>
+                <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
+                  <Carousel />
+                </Paper>
+              </Grid>
+            </Grid>
+          )}
+
+          {/* Formulario y Resultados */}
+          <Grid
+            container
+            spacing={2}
             sx={{
-              p: 2,
-              borderRadius: 2,
-              minHeight: 400,
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
+              flex: 1,
+              alignItems: "stretch",
+              width: "100%",
             }}
           >
-            <Typography variant="h6" align="center" gutterBottom>
-              Resultados
-            </Typography>
+            {/* Formulario */}
+            <Grid item xs={12} md={4} sx={{ display: "flex", flexDirection: "column" }}>
+              <Paper
+                elevation={3}
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  backgroundColor: "#f9f9f9",
+                  display: "flex",
+                  flexDirection: "column",
+                  flex: 1,
+                  minHeight: 400, // altura fija para el formulario
+                }}
+              >
+                <Box sx={{ marginBottom:"3px" }}>
+                <Typography variant="h6" align="center" gutterBottom>
+                  Buscar Carta Porte
+                </Typography>
+                </Box>
+                <Box sx={{ flex: 1, overflow: "auto" }}>
+                  <SearchSerieFolioForm onSearch={handleSearch} />
+                </Box>
+              </Paper>
+            </Grid>
 
-            <Box
-              sx={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {loading ? (
-                <TruckLoader />
-              ) : results.estatus && results.estatus.length > 0 ? (
-                <ResultsTable estatus={results.estatus} detalles={results.detalles} />
-              ) : (
-                <Typography>No se encontraron resultados</Typography>
+            {/* Resultados */}
+            <Grid item xs={12} md={8} sx={{ display: "flex", flexDirection: "column" }}>
+              {(hasSearched || loading) && (
+                <Paper
+                  elevation={3}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    flex: 1,
+                    minHeight: 400, // misma altura que el formulario
+                    width: "100%",
+                  }}
+                >
+                  <Typography variant="h6" align="center" gutterBottom>
+                    Resultados
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      flex: 1,
+                      width: "100%",
+                      overflow: "auto",
+                    }}
+                  >
+                    {loading ? (
+                      <Box
+                        sx={{
+                          flex: 1,
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <TruckLoader />
+                      </Box>
+                    ) : results.estatus && results.estatus.length > 0 ? (
+                      <ResultsTable estatus={results.estatus} detalles={results.detalles} />
+                    ) : (
+                      <Typography align="center" sx={{ mt: 2 }}>
+                        No se encontraron resultados
+                      </Typography>
+                    )}
+                  </Box>
+                </Paper>
               )}
-            </Box>
-          </Paper>
-        )}
-      </Grid>
-    </Grid>
-  </Box>
-)}
-
+            </Grid>
+          </Grid>
+        </Box>
+      )}
 
       {/* Sucursales */}
       {value === 1 && (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 3, flex: 1 }}>
           <BranchesMap />
         </Box>
       )}
@@ -209,6 +227,7 @@ function App() {
             justifyContent: "center",
             alignItems: "center",
             flexDirection: "column",
+            flex: 1,
           }}
         >
           <MissionVision />

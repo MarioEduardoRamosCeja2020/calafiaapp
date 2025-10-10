@@ -118,29 +118,44 @@ function ResultsTable({ estatus, detalles }) {
           <Typography variant="h6" fontWeight="bold">
             DATOS CARTA PORTE
           </Typography>
-            <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap", width: "100%" }}>
-              <Button
-                variant="contained"
-                color="error"
-                startIcon={<PictureAsPdfIcon />}
-                href={`http://www.grupocalafia.com.mx/${row.rutaPDF}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{ minWidth: 160, flex: 1 }}
-              >
-                Ver PDF
-              </Button>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={2}
+            sx={{ width: "100%" }}
+          >
+            <Button
+              variant="contained"
+              color="error"
+              startIcon={<PictureAsPdfIcon />}
+              href={`http://www.grupocalafia.com.mx/${row.rutaPDF}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                flex: 1, // ocupa mismo espacio
+                maxWidth: 250, // ancho máximo en desktop
+                width: { xs: "100%", sm: "auto" }, // móvil ocupa 100%
+                minWidth: 160, // mínimo para que no se vea demasiado pequeño
+              }}
+            >
+              Ver PDF
+            </Button>
 
-              <Button
-                variant="contained"
-                color="success"
-                startIcon={<DescriptionIcon />}
-                onClick={() => handleDownload(row.rutaXML)}
-                sx={{ minWidth: 160, flex: 1 }}
-              >
-                Descargar XML
-              </Button>
-            </Stack>
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<DescriptionIcon />}
+              onClick={() => handleDownload(row.rutaXML)}
+              sx={{
+                flex: 1,
+                maxWidth: 250,
+                width: { xs: "100%", sm: "auto" },
+                minWidth: 160,
+              }}
+            >
+              Descargar XML
+            </Button>
+          </Stack>
+
 
         </Box>
 

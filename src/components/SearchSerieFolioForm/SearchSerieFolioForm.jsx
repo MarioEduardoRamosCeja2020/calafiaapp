@@ -9,11 +9,13 @@ function SearchSerieFolioForm({ onSearch }) {
     event.preventDefault();
 
     // Validaciones
-    const serieRegex = /^[a-zA-Z]{1,8}$/;
+    const serieRegex = /^[A-ZÁÉÍÓÚÑ]{1,8}$/;
     const folioRegex = /^[0-9]{1,8}$/;
 
     if (!serieRegex.test(serie)) {
-      alert("La serie debe contener solo letras y máximo 8 caracteres.");
+      alert(
+        "La serie debe contener solo letras (A-Z, Ñ, acentos) y máximo 8 caracteres."
+      );
       return;
     }
 
@@ -23,7 +25,7 @@ function SearchSerieFolioForm({ onSearch }) {
     }
 
     if (onSearch) {
-      onSearch({ serie: serie.toLowerCase(), folio });
+      onSearch({ serie: serie.toUpperCase(), folio });
     }
   };
 
@@ -34,37 +36,47 @@ function SearchSerieFolioForm({ onSearch }) {
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 2,
+        gap: 3, // más espacio entre campos y botón
+        mt: 2, // margen superior para separar del título
+        overflow: "visible",
       }}
     >
-        <TextField
-          label="Serie"
-          value={serie}
-
-          onChange={(e) => {
-            const input = e.target.value.toUpperCase();
-            // Solo letras A-Z (sin acentos ni números)
-            const onlyLetters = input.replace(/[^A-Z]/g, "");
-            setSerie(onlyLetters);
-          }}
-          inputProps={{ maxLength: 8 }}
-          required
-          fullWidth
-        />
-
+      <TextField
+        label="Serie"
+        value={serie}
+        onChange={(e) => {
+          const input = e.target.value.toUpperCase();
+          const onlyLetters = input.replace(/[^A-ZÁÉÍÓÚÑ]/gi, "");
+          setSerie(onlyLetters);
+        }}
+        inputProps={{ maxLength: 8 }}
+        required
+        fullWidth
+        InputLabelProps={{ shrink: true }} // fuerza el label flotante
+      />
 
       <TextField
         label="Folio"
         value={folio}
         onChange={(e) => {
-          const onlyNums = e.target.value.replace(/\D/g, ""); // solo números
-          setFolio(onlyNums.slice(0, 8)); // máximo 8 dígitos
+          const onlyNums = e.target.value.replace(/\D/g, "");
+          setFolio(onlyNums.slice(0, 8));
         }}
         required
         fullWidth
+        InputLabelProps={{ shrink: true }}
       />
 
-      <Button type="submit" variant="contained" size="large" color="primary">
+      <Button
+        type="submit"
+        variant="contained"
+        size="large"
+        sx={{
+          backgroundColor: "#00004e",
+          "&:hover": { backgroundColor: "#4B9C5F" },
+          mt: 1,
+        }}
+      >
         Buscar
       </Button>
     </Box>
