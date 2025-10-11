@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Tabs,
   Tab,
@@ -31,9 +31,16 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState(0);
   const [results, setResults] = useState([]);
+  const [loadingPage, setLoadingPage] = useState(true); // <-- Estado para animación inicial
 
   const theme = useTheme();
   const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
+
+  useEffect(() => {
+    // Simula la animación de carga inicial (3 segundos)
+    const timer = setTimeout(() => setLoadingPage(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleChange = (_, newValue) => {
     setValue(newValue);
@@ -60,6 +67,26 @@ function App() {
     }
   };
 
+  // Si la página está cargando, mostramos TruckLoader en pantalla completa
+  if (loadingPage) {
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <TruckLoader />
+      </Box>
+    );
+  }
+
+  // ----------------------
+  // Contenido principal
+  // ----------------------
   return (
     <Box sx={{ width: "100%", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <CssBaseline />
@@ -145,13 +172,13 @@ function App() {
                   display: "flex",
                   flexDirection: "column",
                   flex: 1,
-                  minHeight: 400, // altura fija para el formulario
+                  minHeight: 400,
                 }}
               >
-                <Box sx={{ marginBottom:"3px" }}>
-                <Typography variant="h6" align="center" gutterBottom>
-                  Buscar Carta Porte
-                </Typography>
+                <Box sx={{ marginBottom: "3px" }}>
+                  <Typography variant="h6" align="center" gutterBottom>
+                    Buscar Carta Porte
+                  </Typography>
                 </Box>
                 <Box sx={{ flex: 1, overflow: "auto" }}>
                   <SearchSerieFolioForm onSearch={handleSearch} />
@@ -170,7 +197,7 @@ function App() {
                     display: "flex",
                     flexDirection: "column",
                     flex: 1,
-                    minHeight: 400, // misma altura que el formulario
+                    minHeight: 400,
                     width: "100%",
                   }}
                 >
