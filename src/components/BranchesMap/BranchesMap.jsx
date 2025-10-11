@@ -52,10 +52,18 @@ const createCustomIcon = (color, label) =>
   });
 
 // 🚛 Icono tráiler gris sin fondo
+// const trailerIcon = new L.DivIcon({
+//   html: `<div style="font-size: 26px; color: gray;">🚛</div>`,
+//   iconSize: [28, 28],
+//   iconAnchor: [14, 14],
+// });
+
 const trailerIcon = new L.DivIcon({
-  html: `<div style="font-size: 26px; color: gray;">🚛</div>`,
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
+  html: `🚛`,
+  className: "",      // importante, quita estilos por defecto de leaflet
+  iconSize: [50, 50], 
+  iconAnchor: [20, 20],
+  bgPos: [0, 0]
 });
 
 // ✨ Animación del tráiler
