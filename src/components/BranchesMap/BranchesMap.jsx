@@ -22,7 +22,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import "./mapStyles.css";
 
-// 🎯 Íconos personalizados confiables
+// 🎯 Icono con pulso personalizado
 const createCustomIcon = (color) =>
   new L.DivIcon({
     html: `
@@ -50,7 +50,7 @@ const createCustomIcon = (color) =>
     popupAnchor: [0, -25],
   });
 
-// ✨ Efecto de vuelo al marcador
+// ✨ Animación FlyTo
 function FlyToLocation({ coords }) {
   const map = useMap();
   useEffect(() => {
@@ -64,12 +64,11 @@ export default function BranchesMap() {
   const [userCoords, setUserCoords] = useState(null);
   const mapRef = useRef();
 
-  const mapCenter = selectedBranch
-    ? selectedBranch.coords
-    : [20.6736, -103.3477];
+  const mapCenter = selectedBranch ? selectedBranch.coords : [20.6736, -103.3477];
 
   const handleMyLocation = () => {
-    if (!navigator.geolocation) return alert("Tu navegador no soporta GPS.");
+    if (!navigator.geolocation)
+      return alert("Tu navegador no soporta GPS.");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const coords = [pos.coords.latitude, pos.coords.longitude];
@@ -146,7 +145,7 @@ export default function BranchesMap() {
               onClick={handleDirections}
               sx={{
                 bgcolor: "#4B9C5F",
-                "&:hover": { bgcolor: "#3c824c" },
+                "&:hover": { bgcolor: "#00004e" },
                 textTransform: "none",
                 fontSize: "0.8rem",
               }}
@@ -156,7 +155,7 @@ export default function BranchesMap() {
           )}
         </Box>
 
-        {/* 🌈 Mapa colorido */}
+        {/* Mapa */}
         <Box
           sx={{
             flex: 1,
@@ -176,6 +175,7 @@ export default function BranchesMap() {
           >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
+            {/* Marcador sucursal */}
             {selectedBranch && (
               <>
                 <Marker
@@ -190,14 +190,13 @@ export default function BranchesMap() {
               </>
             )}
 
+            {/* Marcador usuario */}
             {userCoords && (
               <Marker
                 position={userCoords}
                 icon={createCustomIcon("#00004e")}
               >
-                <Popup>
-                  <strong>Tu ubicación actual</strong>
-                </Popup>
+                <Popup>Tu ubicación actual</Popup>
               </Marker>
             )}
           </MapContainer>
@@ -231,12 +230,16 @@ export default function BranchesMap() {
             borderRadius: 3,
             boxShadow: 3,
             transition: "all 0.3s ease-in-out",
-            animation: selectedBranch ? "fadeInUp 0.4s ease-in-out" : "none",
           }}
         >
           {selectedBranch ? (
             <Box display="flex" flexDirection="column" gap={1.5}>
-              <Typography variant="h5" fontWeight="bold" gutterBottom color="primary">
+              <Typography
+                variant="h5"
+                fontWeight="bold"
+                gutterBottom
+                color="primary"
+              >
                 {selectedBranch.name}
               </Typography>
 
@@ -246,7 +249,7 @@ export default function BranchesMap() {
               </Box>
 
               <Box display="flex" alignItems="flex-start" gap={1}>
-                <LocationOnIcon color="action" sx={{ mt: 0.5 }} />
+                <LocationOnIcon sx={{ color: "#4B9C5F", mt: 0.5 }} />
                 <Typography variant="body1">{selectedBranch.address}</Typography>
               </Box>
 
