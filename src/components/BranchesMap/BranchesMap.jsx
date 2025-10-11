@@ -7,7 +7,14 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Polyline,
+  useMap,
+} from "react-leaflet";
 import L from "leaflet";
 import StateBranchAccordionMenu from "./StateBranchAccordionMenu";
 import { branchesData } from "./branchesData";
@@ -22,7 +29,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import "./mapStyles.css";
 
-// 🎯 Icono con pulso personalizado
+// 🎯 Íconos personalizados
 const createCustomIcon = (color) =>
   new L.DivIcon({
     html: `
@@ -50,22 +57,45 @@ const createCustomIcon = (color) =>
     popupAnchor: [0, -25],
   });
 
-// ✨ Animación FlyTo
-function FlyToLocation({ coords }) {
+// 🚛 Ícono del tráiler
+const trailerIcon = new L.DivIcon({
+  html: `<div style="font-size: 26px; color: #00004e;">🚛</div>`,
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
+  className: "",
+});
+
+// ✨ Animación de movimiento del tráiler
+function MovingTruck({ route, duration = 20000 }) {
+  const [index, setIndex] = useState(0);
   const map = useMap();
+
   useEffect(() => {
-    if (coords) map.flyTo(coords, 14, { duration: 1.2 });
-  }, [coords, map]);
-  return null;
+    if (!route || route.length === 0) return;
+    const bounds = L.latLngBounds(route);
+    map.fitBounds(bounds, { padding: [50, 50] });
+
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev < route.length - 1 ? prev + 1 : prev));
+    }, duration / route.length);
+
+    return () => clearInterval(interval);
+  }, [route, duration, map]);
+
+  if (!route || route.length === 0) return null;
+  return <Marker position={route[index]} icon={trailerIcon} />;
 }
 
+// 🚀 Función principal
 export default function BranchesMap() {
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [userCoords, setUserCoords] = useState(null);
+  const [route, setRoute] = useState([]);
+  const [distance, setDistance] = useState(null);
+  const [duration, setDuration] = useState(null);
   const mapRef = useRef();
 
-  const mapCenter = selectedBranch ? selectedBranch.coords : [20.6736, -103.3477];
-
+  // Obtener ubicación actual
   const handleMyLocation = () => {
     if (!navigator.geolocation)
       return alert("Tu navegador no soporta GPS.");
@@ -73,10 +103,30 @@ export default function BranchesMap() {
       (pos) => {
         const coords = [pos.coords.latitude, pos.coords.longitude];
         setUserCoords(coords);
-        if (mapRef.current) mapRef.current.flyTo(coords, 14, { duration: 1.2 });
+        if (selectedBranch) {
+          const branchCoords = selectedBranch.coords;
+          setRoute([coords, branchCoords]);
+          calcularDistancia(coords, branchCoords);
+        }
       },
       () => alert("No se pudo obtener tu ubicación.")
     );
+  };
+
+  // Calcular distancia y tiempo
+  const calcularDistancia = (p1, p2) => {
+    const R = 6371;
+    const dLat = ((p2[0] - p1[0]) * Math.PI) / 180;
+    const dLng = ((p2[1] - p1[1]) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(p1[0] * (Math.PI / 180)) *
+        Math.cos(p2[0] * (Math.PI / 180)) *
+        Math.sin(dLng / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const dist = R * c;
+    setDistance(dist.toFixed(2));
+    setDuration((dist / 50) * 60); // 50 km/h
   };
 
   const handleDirections = () => {
@@ -88,11 +138,13 @@ export default function BranchesMap() {
     );
   };
 
+  const mapCenter = selectedBranch ? selectedBranch.coords : [20.6736, -103.3477];
+
   return (
     <Box
       sx={{
         display: "flex",
-        height: 600,
+        height: 650,
         gap: 3,
         p: 3,
         borderRadius: 3,
@@ -100,7 +152,7 @@ export default function BranchesMap() {
         boxShadow: 3,
       }}
     >
-      {/* Panel lateral */}
+      {/* 📁 Panel lateral */}
       <Box
         sx={{
           width: 350,
@@ -114,13 +166,19 @@ export default function BranchesMap() {
         <StateBranchAccordionMenu
           data={branchesData}
           selectedBranch={selectedBranch}
-          onSelectBranch={setSelectedBranch}
+          onSelectBranch={(branch) => {
+            setSelectedBranch(branch);
+            if (userCoords) {
+              setRoute([userCoords, branch.coords]);
+              calcularDistancia(userCoords, branch.coords);
+            }
+          }}
         />
       </Box>
 
-      {/* Contenido derecho */}
+      {/* 🌍 Mapa y detalles */}
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-        {/* Header */}
+        {/* 🔵 Encabezado */}
         <Box
           sx={{
             p: 1.5,
@@ -155,7 +213,7 @@ export default function BranchesMap() {
           )}
         </Box>
 
-        {/* Mapa */}
+        {/* 🗺️ Mapa con ruta y animación */}
         <Box
           sx={{
             flex: 1,
@@ -173,35 +231,32 @@ export default function BranchesMap() {
             ref={mapRef}
             key={selectedBranch?.name}
           >
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <TileLayer url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png" />
 
-            {/* Marcador sucursal */}
             {selectedBranch && (
-              <>
-                <Marker
-                  position={selectedBranch.coords}
-                  icon={createCustomIcon("#4B9C5F")}
-                >
-                  <Popup>
-                    <strong>{selectedBranch.name}</strong>
-                  </Popup>
-                </Marker>
-                <FlyToLocation coords={selectedBranch.coords} />
-              </>
+              <Marker
+                position={selectedBranch.coords}
+                icon={createCustomIcon("#4B9C5F")}
+              >
+                <Popup>{selectedBranch.name}</Popup>
+              </Marker>
             )}
 
-            {/* Marcador usuario */}
             {userCoords && (
-              <Marker
-                position={userCoords}
-                icon={createCustomIcon("#00004e")}
-              >
+              <Marker position={userCoords} icon={createCustomIcon("#00004e")}>
                 <Popup>Tu ubicación actual</Popup>
               </Marker>
             )}
+
+            {route.length > 0 && (
+              <>
+                <Polyline positions={route} color="#4B9C5F" weight={5} />
+                <MovingTruck route={route} duration={30000} />
+              </>
+            )}
           </MapContainer>
 
-          {/* Botón flotante */}
+          {/* 📍 Botón ubicación */}
           <Tooltip title="Mi ubicación">
             <IconButton
               onClick={handleMyLocation}
@@ -220,7 +275,7 @@ export default function BranchesMap() {
           </Tooltip>
         </Box>
 
-        {/* Info Panel */}
+        {/* 🧾 Panel de información */}
         <Paper
           sx={{
             height: 250,
@@ -229,32 +284,33 @@ export default function BranchesMap() {
             bgcolor: "#fff",
             borderRadius: 3,
             boxShadow: 3,
-            transition: "all 0.3s ease-in-out",
           }}
         >
           {selectedBranch ? (
             <Box display="flex" flexDirection="column" gap={1.5}>
-              <Typography
-                variant="h5"
-                fontWeight="bold"
-                gutterBottom
-                color="primary"
-              >
+              <Typography variant="h5" fontWeight="bold" color="primary">
                 {selectedBranch.name}
               </Typography>
 
+              {distance && duration && (
+                <Typography sx={{ color: "#4B9C5F", fontWeight: "bold" }}>
+                  🚛 Distancia: {distance} km | Tiempo estimado:{" "}
+                  {duration.toFixed(0)} min
+                </Typography>
+              )}
+
               <Box display="flex" alignItems="center" gap={1}>
                 <PersonIcon color="action" />
-                <Typography variant="body1">{selectedBranch.contact}</Typography>
+                <Typography>{selectedBranch.contact}</Typography>
               </Box>
 
-              <Box display="flex" alignItems="flex-start" gap={1}>
-                <LocationOnIcon sx={{ color: "#4B9C5F", mt: 0.5 }} />
-                <Typography variant="body1">{selectedBranch.address}</Typography>
+              <Box display="flex" alignItems="center" gap={1}>
+                <LocationOnIcon sx={{ color: "#4B9C5F" }} />
+                <Typography>{selectedBranch.address}</Typography>
               </Box>
 
-              <Box display="flex" alignItems="flex-start" gap={1}>
-                <PhoneIcon color="action" sx={{ mt: 0.5 }} />
+              <Box display="flex" alignItems="center" gap={1}>
+                <PhoneIcon color="action" />
                 <Box>
                   {selectedBranch.phones.map((p, i) => (
                     <Typography key={i}>{p}</Typography>
@@ -265,7 +321,7 @@ export default function BranchesMap() {
               {selectedBranch.notes && (
                 <Box display="flex" alignItems="center" gap={1}>
                   <InfoIcon color="info" />
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography color="text.secondary">
                     {selectedBranch.notes}
                   </Typography>
                 </Box>
