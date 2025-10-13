@@ -51,41 +51,14 @@ const createCustomIcon = (color, label) =>
     iconAnchor: [15, 30],
   });
 
-// 🚛 Icono tráiler gris sin fondo
-// const trailerIcon = new L.DivIcon({
-//   html: `<div style="font-size: 26px; color: gray;">🚛</div>`,
-//   iconSize: [28, 28],
-//   iconAnchor: [14, 14],
-// });
-
+// 🚛 Emoji tráiler grande sin fondo
 const trailerIcon = new L.DivIcon({
   html: `🚛`,
-  className: "",      // importante, quita estilos por defecto de leaflet
-  iconSize: [50, 50], 
-  iconAnchor: [20, 20],
-  bgPos: [0, 0]
+  className: "",      // quita estilos por defecto de Leaflet
+  iconSize: [80, 80], // tamaño del emoji
+  iconAnchor: [40, 40], // centrado
 });
 
-// ✨ Animación del tráiler
-// function MovingTruck({ route, duration = 20000 }) {
-//   const [index, setIndex] = useState(0);
-//   const map = useMap();
-
-//   useEffect(() => {
-//     if (!route || route.length === 0) return;
-//     const bounds = L.latLngBounds(route);
-//     map.fitBounds(bounds, { padding: [50, 50] });
-
-//     const interval = setInterval(() => {
-//       setIndex((prev) => (prev < route.length - 1 ? prev + 1 : prev));
-//     }, duration / route.length);
-
-//     return () => clearInterval(interval);
-//   }, [route, duration, map]);
-
-//   if (!route || route.length === 0) return null;
-//   return <Marker position={route[index]} icon={trailerIcon} />;
-// }
 // ✨ Animación suave del camión
 function MovingTruck({ route, duration = 30000 }) {
   const [position, setPosition] = useState(route[0]);
@@ -95,16 +68,14 @@ function MovingTruck({ route, duration = 30000 }) {
   useEffect(() => {
     if (!route || route.length < 2) return;
 
-    // Ajustar mapa para que se vean ambos puntos
     const bounds = L.latLngBounds(route);
     map.fitBounds(bounds, { padding: [50, 50] });
 
     function animate(timestamp) {
       if (!startTimeRef.current) startTimeRef.current = timestamp;
       const elapsed = timestamp - startTimeRef.current;
-      const t = Math.min(elapsed / duration, 1); // 0 a 1
+      const t = Math.min(elapsed / duration, 1);
 
-      // Interpolación lineal entre los dos puntos
       const lat = route[0][0] + (route[1][0] - route[0][0]) * t;
       const lng = route[0][1] + (route[1][1] - route[0][1]) * t;
       setPosition([lat, lng]);
@@ -114,7 +85,6 @@ function MovingTruck({ route, duration = 30000 }) {
 
     requestAnimationFrame(animate);
 
-    // Resetear cuando cambie la ruta
     return () => {
       startTimeRef.current = null;
     };
@@ -141,7 +111,6 @@ export default function BranchesMap() {
   const [duration, setDuration] = useState(null);
   const mapRef = useRef();
 
-  // Obtener ubicación del usuario al cargar el mapa
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
@@ -157,7 +126,6 @@ export default function BranchesMap() {
     );
   }, [selectedBranch]);
 
-  // Calcular distancia y tiempo estimado
   const calcularDistancia = (p1, p2) => {
     const R = 6371;
     const dLat = ((p2[0] - p1[0]) * Math.PI) / 180;
@@ -170,7 +138,7 @@ export default function BranchesMap() {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const dist = R * c;
     setDistance(dist.toFixed(2));
-    setDuration((dist / 50) * 60); // asumiendo 50 km/h
+    setDuration((dist / 50) * 60);
   };
 
   const handleMyLocation = () => {
