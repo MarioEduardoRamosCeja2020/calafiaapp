@@ -29,10 +29,10 @@ export default function FullScreenCarousel() {
     <Box
       sx={{
         position: "relative",
-        width: "100vw",
+        width: "95vw",
         height: "40vh",
         overflow: "hidden",
-        backgroundColor: "#000",
+        backgroundColor: "#fdf8f8ff",
       }}
     >
       {images.map((img, index) => (

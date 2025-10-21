@@ -10,7 +10,7 @@ import {
   CssBaseline,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-
+import LocalShipping from "@mui/icons-material/LocalShipping";
 import HomeIcon from "@mui/icons-material/Home";
 import StoreIcon from "@mui/icons-material/Store";
 import EmojiObjects from "@mui/icons-material/EmojiObjects";
@@ -30,15 +30,14 @@ function App() {
   const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState(0);
-  const [results, setResults] = useState([]);
-  const [loadingPage, setLoadingPage] = useState(true); // <-- Estado para animación inicial
+  const [results, setResults] = useState({ estatus: [], detalles: [] });
+  const [loadingPage, setLoadingPage] = useState(true);
 
   const theme = useTheme();
   const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
-    // Simula la animación de carga inicial (3 segundos)
-    const timer = setTimeout(() => setLoadingPage(false), 3000);
+    const timer = setTimeout(() => setLoadingPage(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -53,21 +52,29 @@ function App() {
         `http://localhost:3000/results/searchBySerieFolio?kindReport=carta%20porte&serie=${serie}&folio=${folio}`,
         { method: "GET", cache: "no-store" }
       );
+
       if (!response.ok) throw new Error("Failed to fetch results");
 
       const data = await response.json();
-      setResults(data);
+
+      // 🔧 Adaptar respuesta para que tenga estructura { estatus: [...], detalles: [...] }
+      const adaptado = {
+        estatus: Array.isArray(data) ? data : [],
+        detalles: [], // Aquí puedes agregar más si el backend lo soporta
+      };
+
+      setResults(adaptado);
       setHasSearched(true);
+      console.log("Datos adaptados:", adaptado);
     } catch (error) {
       console.error("Error en la petición:", error);
-      setResults([]);
+      setResults({ estatus: [], detalles: [] });
       setHasSearched(true);
     } finally {
       setLoading(false);
     }
   };
 
-  // Si la página está cargando, mostramos TruckLoader en pantalla completa
   if (loadingPage) {
     return (
       <Box
@@ -84,16 +91,12 @@ function App() {
     );
   }
 
-  // ----------------------
-  // Contenido principal
-  // ----------------------
   return (
     <Box sx={{ width: "100%", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <CssBaseline />
       <Header />
       <Box sx={{ height: 64 }} />
 
-      {/* Menú de Tabs */}
       <Paper
         elevation={3}
         sx={{
@@ -135,10 +138,10 @@ function App() {
           <Tab icon={<HomeIcon />} iconPosition="start" label="Home" />
           <Tab icon={<StoreIcon />} iconPosition="start" label="Sucursales" />
           <Tab icon={<EmojiObjects />} iconPosition="start" label="Misión y Visión" />
+          <Tab icon={<LocalShipping />} iconPosition="start" label="Cotizador" />
         </Tabs>
       </Paper>
 
-      {/* Contenido por tab */}
       {value === 0 && (
         <Box sx={{ p: 3, flex: 1, display: "flex", flexDirection: "column" }}>
           {!hasSearched && (
@@ -151,17 +154,7 @@ function App() {
             </Grid>
           )}
 
-          {/* Formulario y Resultados */}
-          <Grid
-            container
-            spacing={2}
-            sx={{
-              flex: 1,
-              alignItems: "stretch",
-              width: "100%",
-            }}
-          >
-            {/* Formulario */}
+          <Grid container spacing={2} sx={{ flex: 1, alignItems: "stretch", width: "100%" }}>
             <Grid item xs={12} md={4} sx={{ display: "flex", flexDirection: "column" }}>
               <Paper
                 elevation={3}
@@ -186,7 +179,6 @@ function App() {
               </Paper>
             </Grid>
 
-            {/* Resultados */}
             <Grid item xs={12} md={8} sx={{ display: "flex", flexDirection: "column" }}>
               {(hasSearched || loading) && (
                 <Paper
@@ -205,13 +197,7 @@ function App() {
                     Resultados
                   </Typography>
 
-                  <Box
-                    sx={{
-                      flex: 1,
-                      width: "100%",
-                      overflow: "auto",
-                    }}
-                  >
+                  <Box sx={{ flex: 1, width: "100%", overflow: "auto" }}>
                     {loading ? (
                       <Box
                         sx={{
@@ -223,7 +209,7 @@ function App() {
                       >
                         <TruckLoader />
                       </Box>
-                    ) : results.estatus && results.estatus.length > 0 ? (
+                    ) : results.estatus.length > 0 ? (
                       <ResultsTable estatus={results.estatus} detalles={results.detalles} />
                     ) : (
                       <Typography align="center" sx={{ mt: 2 }}>
@@ -238,14 +224,12 @@ function App() {
         </Box>
       )}
 
-      {/* Sucursales */}
       {value === 1 && (
         <Box sx={{ p: 3, flex: 1 }}>
           <BranchesMap />
         </Box>
       )}
 
-      {/* Misión y Visión */}
       {value === 2 && (
         <Box
           sx={{
