@@ -1,132 +1,119 @@
-import React, { useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import {
-  Container,
+  Box,
   TextField,
   Button,
   Typography,
-  Box,
-  Alert,
+  Paper,
   CircularProgress,
-  InputAdornment,
-  IconButton,
-} from '@mui/material';
-import axios from 'axios';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+} from "@mui/material";
 
-export default function ResetPassword() {
-  const [searchParams] = useSearchParams();
+function ResetPassword() {
   const navigate = useNavigate();
-  const token = searchParams.get('token');
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
 
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [newPassword, setNewPassword] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMsg('');
-    setSuccessMsg('');
-
-    if (newPassword.length < 6) {
-      setErrorMsg('La contraseña debe tener al menos 6 caracteres');
+  const handleSubmit = async () => {
+    if (!newPassword) {
+      setMessage("Por favor ingresa una nueva contraseña");
       return;
     }
 
-    if (newPassword !== confirmPassword) {
-      setErrorMsg('Las contraseñas no coinciden');
-      return;
-    }
+    setLoading(true);
+    setMessage("");
 
     try {
-      setLoading(true);
-
-      const response = await axios.patch('http://localhost:3000/auth/reset-password', {
-        token,
-        newPassword,
+      const res = await fetch("http://localhost:3000/auth/reset-password", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, newPassword }),
       });
 
-      setSuccessMsg(response.data.message || 'Contraseña restablecida correctamente');
+      const data = await res.json();
 
-      // Redirige al login después de 2.5s
-      setTimeout(() => navigate('/login'), 2500);
-    } catch (error) {
-      console.error(error);
-      setErrorMsg(error.response?.data?.message || 'Error al restablecer la contraseña');
+      if (!res.ok) throw new Error(data.message || "Error al actualizar contraseña");
+
+      setMessage("✅ Contraseña actualizada correctamente");
+      
+      // Redirigir automáticamente al login después de 2.5 segundos
+      setTimeout(() => navigate("/login"), 2500);
+    } catch (err) {
+      setMessage(`❌ ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
   return (
-    <Container maxWidth="xs" sx={{ mt: 8 }}>
-      <Typography variant="h5" align="center" gutterBottom>
-        Restablece tu contraseña
-      </Typography>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "linear-gradient(135deg, #1976d2 30%, #42a5f5 90%)",
+        p: 2,
+      }}
+    >
+      <Paper
+        elevation={6}
+        sx={{
+          p: 4,
+          maxWidth: 400,
+          width: "100%",
+          borderRadius: 3,
+          textAlign: "center",
+        }}
+      >
+        <Typography variant="h5" fontWeight="bold" gutterBottom color="primary">
+          Restablecer Contraseña
+        </Typography>
 
-      <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 3 }}>
-        Ingresa una nueva contraseña segura
-      </Typography>
-
-      <Box component="form" onSubmit={handleSubmit}>
         <TextField
           label="Nueva contraseña"
-          type={showPassword ? 'text' : 'password'}
+          type="password"
           fullWidth
           margin="normal"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          required
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={togglePasswordVisibility} edge="end">
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
         />
 
-        <TextField
-          label="Confirmar contraseña"
-          type={showPassword ? 'text' : 'password'}
+        <Button
+          variant="contained"
           fullWidth
-          margin="normal"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-        />
+          onClick={handleSubmit}
+          disabled={loading}
+          sx={{ mt: 2 }}
+        >
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Guardar"}
+        </Button>
 
-        {errorMsg && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {errorMsg}
-          </Alert>
-        )}
-        {successMsg && (
-          <Alert severity="success" sx={{ mt: 2 }}>
-            {successMsg}
-          </Alert>
+        {message && (
+          <Typography
+            sx={{ mt: 2 }}
+            color={message.includes("✅") ? "green" : "error"}
+          >
+            {message}
+          </Typography>
         )}
 
         <Button
-          type="submit"
-          variant="contained"
+          variant="text"
           color="primary"
           fullWidth
-          sx={{ mt: 3 }}
-          disabled={loading}
+          sx={{ mt: 2 }}
+          onClick={() => navigate("/login")}
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : 'Actualizar contraseña'}
+          Volver al inicio de sesión
         </Button>
-      </Box>
-    </Container>
+      </Paper>
+    </Box>
   );
 }
+
+export default ResetPassword;
