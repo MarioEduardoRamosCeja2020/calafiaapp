@@ -1,19 +1,13 @@
+// src/pages/MainTabs.jsx
 import React, { useState, useEffect } from "react";
 import {
-  Tabs,
-  Tab,
-  Box,
-  Typography,
-  Grid,
-  useMediaQuery,
-  Paper,
-  CssBaseline,
+  Tabs, Tab, Box, Typography, Grid, Paper, CssBaseline, useMediaQuery
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import LocalShipping from "@mui/icons-material/LocalShipping";
 import HomeIcon from "@mui/icons-material/Home";
 import StoreIcon from "@mui/icons-material/Store";
 import EmojiObjects from "@mui/icons-material/EmojiObjects";
+import LocalShipping from "@mui/icons-material/LocalShipping";
 
 import Carousel from "../components/carousel/Carousel";
 import SearchSerieFolioForm from "../components/SearchSerieFolioForm/SearchSerieFolioForm";
@@ -41,9 +35,7 @@ function MainTabs() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleChange = (_, newValue) => {
-    setValue(newValue);
-  };
+  const handleChange = (_, newValue) => setValue(newValue);
 
   const handleSearch = async ({ serie, folio }) => {
     try {
@@ -56,16 +48,10 @@ function MainTabs() {
       if (!response.ok) throw new Error("Failed to fetch results");
 
       const data = await response.json();
-
-      const adaptado = {
-        estatus: Array.isArray(data) ? data : [],
-        detalles: [],
-      };
-
-      setResults(adaptado);
+      setResults({ estatus: Array.isArray(data) ? data : [], detalles: [] });
       setHasSearched(true);
     } catch (error) {
-      console.error("Error en la petición:", error);
+      console.error("Error:", error);
       setResults({ estatus: [], detalles: [] });
       setHasSearched(true);
     } finally {
@@ -75,15 +61,7 @@ function MainTabs() {
 
   if (loadingPage) {
     return (
-      <Box
-        sx={{
-          width: "100%",
-          height: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
+      <Box sx={{ width: "100%", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
         <TruckLoader />
       </Box>
     );
@@ -94,20 +72,7 @@ function MainTabs() {
       <CssBaseline />
       <Header />
       <Box sx={{ height: 64 }} />
-
-      <Paper
-        elevation={3}
-        sx={{
-          width: "100%",
-          bgcolor: "#00004e",
-          p: 1,
-          borderRadius: 0,
-          mb: 2,
-          position: "sticky",
-          top: "64px",
-          zIndex: 1000,
-        }}
-      >
+      <Paper elevation={3} sx={{ width: "100%", bgcolor: "#00004e", p: 1, borderRadius: 0, mb: 2, position: "sticky", top: "64px", zIndex: 1000 }}>
         <Tabs
           value={value}
           onChange={handleChange}
@@ -118,19 +83,8 @@ function MainTabs() {
           indicatorColor="secondary"
           sx={{
             ".MuiTabs-indicator": { backgroundColor: "green" },
-            ".MuiTab-root": {
-              fontSize: isSmall ? "0.75rem" : "1rem",
-              minHeight: isSmall ? 48 : 60,
-              px: isSmall ? 1 : 3,
-              py: 1,
-              color: "#ffffff",
-            },
-            ".Mui-selected": {
-              fontWeight: "bold",
-              backgroundColor: "#4B9C5F",
-              borderRadius: 1,
-              color: "#ffffff !important",
-            },
+            ".MuiTab-root": { fontSize: isSmall ? "0.75rem" : "1rem", minHeight: isSmall ? 48 : 60, px: isSmall ? 1 : 3, py: 1, color: "#ffffff" },
+            ".Mui-selected": { fontWeight: "bold", backgroundColor: "#4B9C5F", borderRadius: 1, color: "#ffffff !important" },
           }}
         >
           <Tab icon={<HomeIcon />} iconPosition="start" label="Home" />
@@ -151,26 +105,10 @@ function MainTabs() {
               </Grid>
             </Grid>
           )}
-
           <Grid container spacing={2} sx={{ flex: 1, alignItems: "stretch", width: "100%" }}>
             <Grid item xs={12} md={4} sx={{ display: "flex", flexDirection: "column" }}>
-              <Paper
-                elevation={3}
-                sx={{
-                  p: 2,
-                  borderRadius: 2,
-                  backgroundColor: "#f9f9f9",
-                  display: "flex",
-                  flexDirection: "column",
-                  flex: 1,
-                  minHeight: 400,
-                }}
-              >
-                <Box sx={{ marginBottom: "3px" }}>
-                  <Typography variant="h6" align="center" gutterBottom>
-                    Buscar Carta Porte
-                  </Typography>
-                </Box>
+              <Paper elevation={3} sx={{ p: 2, borderRadius: 2, backgroundColor: "#f9f9f9", display: "flex", flexDirection: "column", flex: 1, minHeight: 400 }}>
+                <Typography variant="h6" align="center" gutterBottom>Buscar Carta Porte</Typography>
                 <Box sx={{ flex: 1, overflow: "auto" }}>
                   <SearchSerieFolioForm onSearch={handleSearch} />
                 </Box>
@@ -179,40 +117,17 @@ function MainTabs() {
 
             <Grid item xs={12} md={8} sx={{ display: "flex", flexDirection: "column" }}>
               {(hasSearched || loading) && (
-                <Paper
-                  elevation={3}
-                  sx={{
-                    p: 2,
-                    borderRadius: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    flex: 1,
-                    minHeight: 400,
-                    width: "100%",
-                  }}
-                >
-                  <Typography variant="h6" align="center" gutterBottom>
-                    Resultados
-                  </Typography>
-
+                <Paper elevation={3} sx={{ p: 2, borderRadius: 2, display: "flex", flexDirection: "column", flex: 1, minHeight: 400, width: "100%" }}>
+                  <Typography variant="h6" align="center" gutterBottom>Resultados</Typography>
                   <Box sx={{ flex: 1, width: "100%", overflow: "auto" }}>
                     {loading ? (
-                      <Box
-                        sx={{
-                          flex: 1,
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
+                      <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <TruckLoader />
                       </Box>
                     ) : results.estatus.length > 0 ? (
                       <ResultsTable estatus={results.estatus} detalles={results.detalles} />
                     ) : (
-                      <Typography align="center" sx={{ mt: 2 }}>
-                        No se encontraron resultados
-                      </Typography>
+                      <Typography align="center" sx={{ mt: 2 }}>No se encontraron resultados</Typography>
                     )}
                   </Box>
                 </Paper>
@@ -222,26 +137,8 @@ function MainTabs() {
         </Box>
       )}
 
-      {value === 1 && (
-        <Box sx={{ p: 3, flex: 1 }}>
-          <BranchesMap />
-        </Box>
-      )}
-
-      {value === 2 && (
-        <Box
-          sx={{
-            p: 3,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "column",
-            flex: 1,
-          }}
-        >
-          <MissionVision />
-        </Box>
-      )}
+      {value === 1 && <Box sx={{ p: 3, flex: 1 }}><BranchesMap /></Box>}
+      {value === 2 && <Box sx={{ p: 3, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", flex: 1 }}><MissionVision /></Box>}
 
       <Footer />
     </Box>

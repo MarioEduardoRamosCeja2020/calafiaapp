@@ -10,7 +10,7 @@ const Header = () => {
   // Abrir login desde registro
   const switchToLogin = () => {
     setOpenRegister(false);
-    setTimeout(() => setOpenLogin(true), 200); // Delay suave
+    setTimeout(() => setOpenLogin(true), 200);
   };
 
   // Abrir registro desde login
@@ -56,9 +56,7 @@ const Header = () => {
               onClick={() => setOpenRegister(true)}
               sx={{
                 backgroundColor: "#00004e",
-                "&:hover": {
-                  backgroundColor: "#4B9C5F",
-                },
+                "&:hover": { backgroundColor: "#4B9C5F" },
               }}
             >
               Registro
@@ -73,11 +71,14 @@ const Header = () => {
         onClose={() => setOpenLogin(false)}
         onSwitchToRegister={switchToRegister}
       />
+
       <RegisterDialog
         open={openRegister}
         onClose={() => setOpenRegister(false)}
         onSwitchToLogin={switchToLogin}
+        fromLogin={true} // 👈 Oculta correo, rol y sucursal
       />
+
     </>
   );
 };

@@ -16,46 +16,95 @@ import {
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Visibility, VisibilityOff, CheckCircle, Error } from "@mui/icons-material";
+import { keyframes } from "@mui/system";
 
-const RegisterDialog = ({ open, onClose, onSwitchToLogin }) => {
+// Animación pulse para botón Cancelar
+const pulse = keyframes`
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(198,40,40, 0.7); }
+  50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(198,40,40, 0.7); }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(198,40,40, 0.7); }
+`;
+
+// Animación ligera al abrir el diálogo
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const initialFormState = {
+  Id_rol_usu: "",
+  NombreCompleto_usu: "",
+  FechaNacimiento_usu: "",
+  Login_usu: "",
+  Password_usu: "",
+  correo_elec_usu: "",
+  PassWord_correo_usu: "",
+  Id_suc_usu: "",
+};
+
+const RegisterDialog = ({ open, onClose, onSwitchToLogin, fromLogin = false }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [form, setForm] = useState({
-    Id_rol_usu: "",
-    NombreCompleto_usu: "",
-    FechaNacimiento_usu: "",
-    Login_usu: "",
-    Password_usu: "",
-    correo_elec_usu: "",
-    PassWord_correo_usu: "",
-    Id_suc_usu: "",
-  });
-
+  const [form, setForm] = useState(initialFormState);
   const [showPassword, setShowPassword] = useState(false);
   const [showEmailPassword, setShowEmailPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [errorSnackbar, setErrorSnackbar] = useState(false);
 
-  const [error, setError] = useState(""); // Para mensaje de error
-  const [success, setSuccess] = useState(false); // Para Snackbar de éxito
-  const [errorSnackbar, setErrorSnackbar] = useState(false); // Para Snackbar de error
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const handleChange = (field) => (event) => {
     setForm({ ...form, [field]: event.target.value });
   };
 
-  async function handleRegister() {
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePassword = (password) =>
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/.test(password);
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setForm({ ...form, correo_elec_usu: value });
+    if (!validateEmail(value)) setEmailError("Ingresa un correo válido.");
+    else setEmailError("");
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setForm({ ...form, Password_usu: value });
+    if (!validatePassword(value))
+      setPasswordError(
+        "La contraseña debe tener al menos 6 caracteres, mayúsculas, minúsculas, números y un carácter especial."
+      );
+    else setPasswordError("");
+  };
+
+  const handleRegister = async () => {
     setError("");
+    if (emailError || passwordError) {
+      setErrorSnackbar(true);
+      setError("Corrige los errores del formulario antes de continuar.");
+      return;
+    }
+
+    const body = { ...form };
+    if (fromLogin) {
+      body.Id_rol_usu = 2;
+      body.Id_suc_usu = 1;
+      body.PassWord_correo_usu = null;
+    }
 
     try {
       const response = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         setError(data.message || "Error al registrar usuario");
         setErrorSnackbar(true);
@@ -63,13 +112,42 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin }) => {
       }
 
       setSuccess(true);
-      onClose(); // Puedes comentar esto si quieres que el dialog no se cierre automáticamente
-
-    } catch (err) {
+      setForm(initialFormState);
+      document.activeElement?.blur();
+      setTimeout(() => onClose(), 100);
+    } catch {
       setError("Error en la conexión con el servidor");
       setErrorSnackbar(true);
     }
-  }
+  };
+
+  const linkStyle = {
+    color: "#00004e",
+    fontWeight: 600,
+    cursor: "pointer",
+    "&:hover": { color: "#4B9C5F", transform: "translateY(-2px)" },
+  };
+
+  const renderAdornment = (error, value) => {
+    if (!value) return null;
+    return error ? <Error color="error" /> : <CheckCircle color="success" />;
+  };
+
+  // Estilo dinámico para campos según validación
+  const inputStyle = (error, value) => ({
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: value ? (error ? '#d32f2f' : '#4caf50') : undefined,
+      },
+      '&:hover fieldset': {
+        borderColor: value ? (error ? '#d32f2f' : '#4caf50') : undefined,
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: value ? (error ? '#d32f2f' : '#4caf50') : '#00004e',
+        borderWidth: 2,
+      },
+    },
+  });
 
   return (
     <>
@@ -80,20 +158,10 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin }) => {
         maxWidth="sm"
         fullScreen={fullScreen}
         PaperProps={{
-          sx: {
-            p: fullScreen ? 2 : 3,
-            borderRadius: fullScreen ? 0 : 2,
-          },
+          sx: { p: fullScreen ? 2 : 3, borderRadius: fullScreen ? 0 : 3, animation: `${fadeIn} 0.4s ease-out` },
         }}
       >
-        <DialogTitle
-          sx={{
-            fontWeight: "bold",
-            color: "#00004e",
-            textAlign: "center",
-            fontSize: { xs: "1.4rem", sm: "1.6rem" },
-          }}
-        >
+        <DialogTitle sx={{ fontWeight: "bold", color: "#00004e", textAlign: "center", fontSize: { xs: "1.4rem", sm: "1.6rem" } }}>
           Registro de Usuario
         </DialogTitle>
 
@@ -106,6 +174,7 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin }) => {
               fullWidth
               required
               InputLabelProps={{ shrink: true }}
+              sx={inputStyle(false, form.NombreCompleto_usu)}
             />
 
             <TextField
@@ -116,6 +185,7 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin }) => {
               fullWidth
               required
               InputLabelProps={{ shrink: true }}
+              sx={inputStyle(false, form.FechaNacimiento_usu)}
             />
 
             <TextField
@@ -125,19 +195,24 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin }) => {
               fullWidth
               required
               InputLabelProps={{ shrink: true }}
+              sx={inputStyle(false, form.Login_usu)}
             />
 
             <TextField
               label="Contraseña"
               type={showPassword ? "text" : "password"}
               value={form.Password_usu}
-              onChange={handleChange("Password_usu")}
+              onChange={handlePasswordChange}
+              error={!!passwordError}
+              helperText={passwordError || " "}
               fullWidth
               required
               InputLabelProps={{ shrink: true }}
+              sx={inputStyle(passwordError, form.Password_usu)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
+                    {renderAdornment(passwordError, form.Password_usu)}
                     <IconButton onClick={() => setShowPassword(!showPassword)}>
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -150,84 +225,92 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin }) => {
               label="Correo electrónico"
               type="email"
               value={form.correo_elec_usu}
-              onChange={handleChange("correo_elec_usu")}
+              onChange={handleEmailChange}
+              error={!!emailError}
+              helperText={emailError || " "}
               fullWidth
               required
               InputLabelProps={{ shrink: true }}
-            />
-
-            <TextField
-              label="Contraseña del correo"
-              type={showEmailPassword ? "text" : "password"}
-              value={form.PassWord_correo_usu}
-              onChange={handleChange("PassWord_correo_usu")}
-              fullWidth
-              required
-              InputLabelProps={{ shrink: true }}
+              sx={inputStyle(emailError, form.correo_elec_usu)}
               InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowEmailPassword(!showEmailPassword)}
-                    >
-                      {showEmailPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+                endAdornment: <InputAdornment position="end">{renderAdornment(emailError, form.correo_elec_usu)}</InputAdornment>,
               }}
             />
 
-            <TextField
-              select
-              label="Rol"
-              value={form.Id_rol_usu}
-              onChange={handleChange("Id_rol_usu")}
-              fullWidth
-              required
-              InputLabelProps={{ shrink: true }}
-            >
-              <MenuItem value="1">Administrador</MenuItem>
-              <MenuItem value="2">Usuario</MenuItem>
-              <MenuItem value="3">Supervisor</MenuItem>
-            </TextField>
+            {!fromLogin && (
+              <>
+                <TextField
+                  label="Contraseña del correo"
+                  type={showEmailPassword ? "text" : "password"}
+                  value={form.PassWord_correo_usu}
+                  onChange={handleChange("PassWord_correo_usu")}
+                  fullWidth
+                  required
+                  InputLabelProps={{ shrink: true }}
+                  sx={inputStyle(false, form.PassWord_correo_usu)}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowEmailPassword(!showEmailPassword)}>
+                          {showEmailPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
 
-            <TextField
-              select
-              label="Sucursal"
-              value={form.Id_suc_usu}
-              onChange={handleChange("Id_suc_usu")}
-              fullWidth
-              required
-              InputLabelProps={{ shrink: true }}
-            >
-              <MenuItem value="1">Sucursal A</MenuItem>
-              <MenuItem value="2">Sucursal B</MenuItem>
-              <MenuItem value="3">Sucursal C</MenuItem>
-            </TextField>
+                <TextField
+                  select
+                  label="Rol"
+                  value={form.Id_rol_usu}
+                  onChange={handleChange("Id_rol_usu")}
+                  fullWidth
+                  required
+                  InputLabelProps={{ shrink: true }}
+                  sx={inputStyle(false, form.Id_rol_usu)}
+                >
+                  <MenuItem value="1">Administrador</MenuItem>
+                  <MenuItem value="2">Usuario</MenuItem>
+                  <MenuItem value="3">Supervisor</MenuItem>
+                </TextField>
+
+                <TextField
+                  select
+                  label="Sucursal"
+                  value={form.Id_suc_usu}
+                  onChange={handleChange("Id_suc_usu")}
+                  fullWidth
+                  required
+                  InputLabelProps={{ shrink: true }}
+                  sx={inputStyle(false, form.Id_suc_usu)}
+                >
+                  <MenuItem value="1">Sucursal A</MenuItem>
+                  <MenuItem value="2">Sucursal B</MenuItem>
+                  <MenuItem value="3">Sucursal C</MenuItem>
+                </TextField>
+              </>
+            )}
           </Box>
 
           <Typography variant="body2" sx={{ textAlign: "center", mt: 2 }}>
             ¿Ya tienes cuenta?{" "}
-            <Button onClick={onSwitchToLogin} size="small">
+            <Typography component="span" sx={linkStyle} onClick={onSwitchToLogin}>
               Inicia sesión
-            </Button>
+            </Typography>
           </Typography>
         </DialogContent>
 
-        <DialogActions
-          sx={{
-            justifyContent: "space-between",
-            px: 3,
-            pt: 2,
-            flexDirection: { xs: "column-reverse", sm: "row" },
-            gap: { xs: 2, sm: 0 },
-          }}
-        >
+        <DialogActions sx={{ justifyContent: "space-between", px: 3, pt: 2, flexDirection: { xs: "column-reverse", sm: "row" }, gap: { xs: 2, sm: 0 } }}>
           <Button
             onClick={onClose}
-            color="inherit"
             fullWidth={fullScreen}
-            variant={fullScreen ? "outlined" : "text"}
+            variant="outlined"
+            sx={{
+              color: "#c62828",
+              borderColor: "#c62828",
+              fontWeight: "bold",
+              "&:hover": { animation: `${pulse} 1s infinite`, backgroundColor: "rgba(198, 40, 40, 0.1)", borderColor: "#b71c1c" },
+            }}
           >
             Cancelar
           </Button>
@@ -239,9 +322,8 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin }) => {
             size="large"
             sx={{
               backgroundColor: "#00004e",
-              "&:hover": {
-                backgroundColor: "#4B9C5F",
-              },
+              fontWeight: "bold",
+              "&:hover": { background: "#4B9C5F" },
             }}
           >
             Registrar
@@ -249,50 +331,14 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin }) => {
         </DialogActions>
       </Dialog>
 
-      {/* ✅ Snackbar de Éxito */}
-      <Snackbar
-        open={success}
-        autoHideDuration={4000}
-        onClose={() => setSuccess(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSuccess(false)}
-          severity="success"
-          variant="filled"
-          sx={{
-            width: "100%",
-            fontSize: "1.1rem",
-            px: 3,
-            py: 2,
-            borderRadius: 2,
-            boxShadow: 4,
-          }}
-        >
+      <Snackbar open={success} autoHideDuration={4000} onClose={() => setSuccess(false)} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+        <Alert onClose={() => setSuccess(false)} severity="success" variant="filled">
           ¡Usuario registrado correctamente! 🎉
         </Alert>
       </Snackbar>
 
-      {/* ❌ Snackbar de Error */}
-      <Snackbar
-        open={errorSnackbar}
-        autoHideDuration={4000}
-        onClose={() => setErrorSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setErrorSnackbar(false)}
-          severity="error"
-          variant="filled"
-          sx={{
-            width: "100%",
-            fontSize: "1.1rem",
-            px: 3,
-            py: 2,
-            borderRadius: 2,
-            boxShadow: 4,
-          }}
-        >
+      <Snackbar open={errorSnackbar} autoHideDuration={4000} onClose={() => setErrorSnackbar(false)} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+        <Alert onClose={() => setErrorSnackbar(false)} severity="error" variant="filled">
           {error}
         </Alert>
       </Snackbar>

@@ -1,5 +1,5 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 
 function ResetPassword() {
+  const containerRef = useRef(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
@@ -18,9 +19,17 @@ function ResetPassword() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    containerRef.current?.focus();
+    // Limpia cualquier aria-hidden que haya quedado del modal anterior
+    document.querySelectorAll("[aria-hidden='true']").forEach((el) => {
+      el.removeAttribute("aria-hidden");
+    });
+  }, []);
+
   const handleSubmit = async () => {
     if (!newPassword) {
-      setMessage("Por favor ingresa una nueva contraseña");
+      setMessage("⚠️ Por favor ingresa una nueva contraseña");
       return;
     }
 
@@ -39,8 +48,6 @@ function ResetPassword() {
       if (!res.ok) throw new Error(data.message || "Error al actualizar contraseña");
 
       setMessage("✅ Contraseña actualizada correctamente");
-      
-      // Redirigir automáticamente al login después de 2.5 segundos
       setTimeout(() => navigate("/login"), 2500);
     } catch (err) {
       setMessage(`❌ ${err.message}`);
@@ -51,6 +58,8 @@ function ResetPassword() {
 
   return (
     <Box
+      ref={containerRef}
+      tabIndex={-1}
       sx={{
         minHeight: "100vh",
         display: "flex",
@@ -96,14 +105,20 @@ function ResetPassword() {
         {message && (
           <Typography
             sx={{ mt: 2 }}
-            color={message.includes("✅") ? "green" : "error"}
+            color={
+              message.includes("✅")
+                ? "green"
+                : message.includes("⚠️")
+                ? "orange"
+                : "error"
+            }
           >
             {message}
           </Typography>
         )}
 
         <Button
-          variant="text"
+          variant="outlined"
           color="primary"
           fullWidth
           sx={{ mt: 2 }}

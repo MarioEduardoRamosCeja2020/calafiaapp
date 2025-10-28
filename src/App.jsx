@@ -1,6 +1,7 @@
+// src/App.jsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainTabs from "./pages/MainTabs";
-import ResetPassword from "./pages/ResetPassword"; // 👈 Tu componente nuevo
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
