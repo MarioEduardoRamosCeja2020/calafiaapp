@@ -16,10 +16,13 @@ import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { login } from "../../services/authService";
 import ForgotPasswordDialog from "./ForgotPasswordDialog"; // ✅ asegúrate de tener este archivo
+import { useNavigate } from "react-router-dom";
+
 
 const LoginDialog = ({ open, onClose, onSwitchToRegister }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
 
   const [Login_usu, setLogin_usu] = useState("");
   const [Password_usu, setPassword_usu] = useState("");
@@ -38,6 +41,13 @@ const LoginDialog = ({ open, onClose, onSwitchToRegister }) => {
       const user = await login({ Login_usu, Password_usu });
       console.log("Login exitoso:", user);
       onClose(); // cerrar modal si login exitoso
+      
+      if(user.user.Id_rol_usu == 1){
+        navigate("/menu");
+      }
+      if(user.user.Id_rol_usu ==  2){
+        // navigate("/menu");
+      }
     } catch (err) {
       console.error(err);
       setError("Usuario o contraseña incorrectos.");
