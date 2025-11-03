@@ -10,14 +10,13 @@ import {
   Box,
   MenuItem,
   Typography,
-  Snackbar,
-  Alert,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
 import { Visibility, VisibilityOff, CheckCircle, Error } from "@mui/icons-material";
 import { keyframes } from "@mui/system";
+import NotificationSnackbar from "../NotificationSnackbar";
 
 // Animación pulse para botón Cancelar
 const pulse = keyframes`
@@ -50,7 +49,7 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin, fromLogin = false }) =
   const [form, setForm] = useState(initialFormState);
   const [showPassword, setShowPassword] = useState(false);
   const [showEmailPassword, setShowEmailPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [success, setSuccess] = useState(false);
   const [errorSnackbar, setErrorSnackbar] = useState(false);
 
@@ -83,10 +82,10 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin, fromLogin = false }) =
   };
 
   const handleRegister = async () => {
-    setError("");
+    setErrorMessage("");
     if (emailError || passwordError) {
       setErrorSnackbar(true);
-      setError("Corrige los errores del formulario antes de continuar.");
+      setErrorMessage("Corrige los errores del formulario antes de continuar.");
       return;
     }
 
@@ -106,7 +105,7 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin, fromLogin = false }) =
 
       const data = await response.json();
       if (!response.ok) {
-        setError(data.message || "Error al registrar usuario");
+        setErrorMessage(data.message || "Error al registrar usuario");
         setErrorSnackbar(true);
         return;
       }
@@ -116,7 +115,7 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin, fromLogin = false }) =
       document.activeElement?.blur();
       setTimeout(() => onClose(), 100);
     } catch {
-      setError("Error en la conexión con el servidor");
+      setErrorMessage("Error en la conexión con el servidor");
       setErrorSnackbar(true);
     }
   };
@@ -133,7 +132,6 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin, fromLogin = false }) =
     return error ? <Error color="error" /> : <CheckCircle color="success" />;
   };
 
-  // Estilo dinámico para campos según validación
   const inputStyle = (error, value) => ({
     '& .MuiOutlinedInput-root': {
       '& fieldset': {
@@ -331,17 +329,20 @@ const RegisterDialog = ({ open, onClose, onSwitchToLogin, fromLogin = false }) =
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={success} autoHideDuration={4000} onClose={() => setSuccess(false)} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
-        <Alert onClose={() => setSuccess(false)} severity="success" variant="filled">
-          ¡Usuario registrado correctamente! 🎉
-        </Alert>
-      </Snackbar>
+      {/* === NOTIFICACIONES === */}
+      <NotificationSnackbar
+        open={success}
+        onClose={() => setSuccess(false)}
+        message="¡Usuario registrado correctamente! 🎉"
+        severity="success"
+      />
 
-      <Snackbar open={errorSnackbar} autoHideDuration={4000} onClose={() => setErrorSnackbar(false)} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
-        <Alert onClose={() => setErrorSnackbar(false)} severity="error" variant="filled">
-          {error}
-        </Alert>
-      </Snackbar>
+      <NotificationSnackbar
+        open={errorSnackbar}
+        onClose={() => setErrorSnackbar(false)}
+        message={errorMessage}
+        severity="error"
+      />
     </>
   );
 };

@@ -5,7 +5,7 @@ import ResetPassword from "./pages/ResetPassword";
 import MenuPage from "./pages/MenuPage";
 import Dashboard from "./pages/Dashboard";
 import Usuarios from "./pages/Usuarios";
-import Reportes from "./pages/Reportes";
+import Reportes from "./pages/Routes";
 import Configuracion from "./pages/Configuracion";
 import Perfil from "./pages/Perfil";
 

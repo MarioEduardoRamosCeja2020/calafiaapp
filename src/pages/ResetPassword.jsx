@@ -48,7 +48,7 @@ function ResetPassword() {
       if (!res.ok) throw new Error(data.message || "Error al actualizar contraseña");
 
       setMessage("✅ Contraseña actualizada correctamente");
-      setTimeout(() => navigate("/login"), 2500);
+      setTimeout(() => navigate("/"), 2500);
     } catch (err) {
       setMessage(`❌ ${err.message}`);
     } finally {
