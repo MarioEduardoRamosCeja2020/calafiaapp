@@ -14,10 +14,17 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { keyframes } from "@mui/system";
 import { login } from "../../services/authService";
 import ForgotPasswordDialog from "./ForgotPasswordDialog"; // ✅ asegúrate de tener este archivo
 import { useNavigate } from "react-router-dom";
 
+// Animación pulse para botón Cancelar
+const pulse = keyframes`
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(198,40,40, 0.7); }
+  50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(198,40,40, 0.7); }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(198,40,40, 0.7); }
+`;
 
 const LoginDialog = ({ open, onClose, onSwitchToRegister }) => {
   const theme = useTheme();
@@ -41,11 +48,11 @@ const LoginDialog = ({ open, onClose, onSwitchToRegister }) => {
       const user = await login({ Login_usu, Password_usu });
       console.log("Login exitoso:", user);
       onClose(); // cerrar modal si login exitoso
-      
-      if(user.user.Id_rol_usu == 1){
+
+      if (user.user.Id_rol_usu == 1) {
         navigate("/menu");
       }
-      if(user.user.Id_rol_usu ==  2){
+      if (user.user.Id_rol_usu == 2) {
         // navigate("/menu");
       }
     } catch (err) {
@@ -164,9 +171,18 @@ const LoginDialog = ({ open, onClose, onSwitchToRegister }) => {
         >
           <Button
             onClick={onClose}
-            color="inherit"
             fullWidth={fullScreen}
-            variant={fullScreen ? "outlined" : "text"}
+            variant="outlined"
+            sx={{
+              color: "#c62828",
+              borderColor: "#c62828",
+              fontWeight: "bold",
+              "&:hover": {
+                animation: `${pulse} 1s infinite`,
+                backgroundColor: "rgba(198, 40, 40, 0.1)",
+                borderColor: "#b71c1c",
+              },
+            }}
           >
             Cancelar
           </Button>

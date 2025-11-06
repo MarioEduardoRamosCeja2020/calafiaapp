@@ -10,6 +10,7 @@ import EmojiObjects from "@mui/icons-material/EmojiObjects";
 import LocalShipping from "@mui/icons-material/LocalShipping";
 
 import Carousel from "../components/carousel/Carousel";
+import QuoterDialog from "../components/QuoterDialog/QuoterDialog";
 import SearchSerieFolioForm from "../components/SearchSerieFolioForm/SearchSerieFolioForm";
 import ResultsTable from "../components/ResultsTable/ResultsTable";
 import BranchesMap from "../components/BranchesMap/BranchesMap";
@@ -139,6 +140,9 @@ function MainTabs() {
 
       {value === 1 && <Box sx={{ p: 3, flex: 1 }}><BranchesMap /></Box>}
       {value === 2 && <Box sx={{ p: 3, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", flex: 1 }}><MissionVision /></Box>}
+      {value === 3 && <Box sx={{ p: 3, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", flex: 1 }}><QuoterDialog /></Box>}
+      {/* <QuoterDialog open={true} onClose={() => console.log("cerrar")} /> */}
+
 
       <Footer />
     </Box>
