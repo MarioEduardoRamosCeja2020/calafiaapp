@@ -37,29 +37,29 @@ const LoginDialog = ({ open, onClose, onSwitchToRegister }) => {
   const [error, setError] = useState("");
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false); // ✅ modal
 
-  const handleLogin = async () => {
-    setError("");
-    if (!Login_usu || !Password_usu) {
-      setError("Por favor, completa todos los campos.");
-      return;
-    }
+const handleLogin = async () => {
+  setError("");
+  if (!Login_usu || !Password_usu) {
+    setError("Por favor, completa todos los campos.");
+    return;
+  }
 
-    try {
-      const user = await login({ Login_usu, Password_usu });
-      console.log("Login exitoso:", user);
-      onClose(); // cerrar modal si login exitoso
+  try {
+    const user = await login({ Login_usu, Password_usu });
+    console.log("Login exitoso:", user);
 
-      if (user.user.Id_rol_usu == 1) {
-        navigate("/menu");
-      }
-      if (user.user.Id_rol_usu == 2) {
-        // navigate("/menu");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Usuario o contraseña incorrectos.");
-    }
-  };
+    // Guardar tipo de usuario
+    localStorage.setItem("userType", user.user.Id_rol_usu);
+
+    // Redirigir al menú
+    navigate("/menu"); 
+    onClose(); // cerrar modal si login exitoso
+  } catch (err) {
+    console.error(err);
+    setError("Usuario o contraseña incorrectos.");
+  }
+};
+
 
   return (
     <>

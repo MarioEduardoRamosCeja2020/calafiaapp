@@ -1,4 +1,3 @@
-// src/pages/MenuPage.jsx
 import Sidebar from "../components/Sidebar/Sidebar";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -10,26 +9,19 @@ const MenuPage = () => {
   const userType = Number(localStorage.getItem("userType"));
 
   useEffect(() => {
-    if (!userType) navigate("/"); // Si no hay usuario, regresa al inicio
+    if (!userType) navigate("/"); // Redirige al login si no hay usuario
   }, [userType, navigate]);
 
   const handleLogout = () => {
-    localStorage.clear(); // Borra todo el localStorage
-    navigate("/"); // Regresa al login o inicio
+    localStorage.clear();
+    navigate("/"); // Regresa al login
   };
 
   return (
     <div style={{ display: "flex" }}>
       <Sidebar userType={userType} />
       <main style={{ flex: 1, padding: "2rem" }}>
-        {/* Header con botón profesional de cerrar sesión */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            mb: 3,
-          }}
-        >
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
           <Button
             variant="outlined"
             color="secondary"
@@ -50,6 +42,7 @@ const MenuPage = () => {
           </Button>
         </Box>
 
+        {/* Aquí se renderizan las rutas hijas */}
         <Outlet />
       </main>
     </div>

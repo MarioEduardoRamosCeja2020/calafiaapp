@@ -17,7 +17,7 @@ export default function FullScreenCarousel() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % images.length);
-    }, 4000); // cambia cada 4 segundos
+    }, 4000); // Cambia cada 4 segundos
     return () => clearInterval(interval);
   }, []);
 
@@ -29,17 +29,21 @@ export default function FullScreenCarousel() {
     <Box
       sx={{
         position: "relative",
-        width: "95vw",
-        height: "40vh",
-        overflow: "hidden",
-        backgroundColor: "#fdf8f8ff",
+        width: "100%",
+        height: "500px", // Tamaño fijo para PC
+        maxWidth: "100%", // Asegura que el carrusel no se haga más grande
+        overflow: "hidden", // Oculta el contenido que se desborda
+        margin: "0 auto", // Centra el carrusel
+        display: "flex", // Flexbox para que las imágenes se centren
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
       {images.map((img, index) => (
         <Box
           key={index}
           sx={{
-            display: index === current ? "block" : "none",
+            display: index === current ? "block" : "none", // Mostrar solo la imagen actual
             width: "100%",
             height: "100%",
             transition: "opacity 1s ease-in-out",
@@ -50,11 +54,12 @@ export default function FullScreenCarousel() {
             src={img.url}
             alt={img.title}
             sx={{
-              width: "100%",
-              height: "100%",
-              objectFit: "contain", // 👈 muestra la imagen completa
+              width: "100%", // Asegura que la imagen ocupe el 100% del ancho
+              height: "100%", // Asegura que la imagen ocupe el 100% del alto
+              objectFit: "contain", // Mantiene las proporciones de la imagen sin recortes
+              objectPosition: "center", // Centra la imagen dentro del carrusel
               transition: "transform 1s ease",
-              "&:hover": { transform: "scale(2.05)" },
+              "&:hover": { transform: "scale(1.05)" }, // Efecto zoom en hover
             }}
           />
           <Box
@@ -69,7 +74,7 @@ export default function FullScreenCarousel() {
             }}
           >
             <Typography
-              variant="h3"
+              variant="h4"
               color="#fff"
               sx={{ fontWeight: 700, textShadow: "0 0 10px rgba(0,0,0,0.7)" }}
             >
@@ -91,6 +96,7 @@ export default function FullScreenCarousel() {
           backgroundColor: "rgba(0,0,0,0.4)",
           "&:hover": { backgroundColor: "rgba(0,0,0,0.6)" },
           zIndex: 10,
+          display: { xs: "none", md: "block" }, // Oculta las flechas en dispositivos móviles
         }}
       >
         <ArrowBackIosNewIcon />
@@ -107,6 +113,7 @@ export default function FullScreenCarousel() {
           backgroundColor: "rgba(0,0,0,0.4)",
           "&:hover": { backgroundColor: "rgba(0,0,0,0.6)" },
           zIndex: 10,
+          display: { xs: "none", md: "block" }, // Oculta las flechas en dispositivos móviles
         }}
       >
         <ArrowForwardIosIcon />
