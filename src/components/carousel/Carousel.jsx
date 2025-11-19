@@ -1,40 +1,58 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 const images = [
-  { url: "/img/truckUno.jpg", title: "Transporte de carga" },
-  { url: "/img/truckDos.jpg", title: "Envíos nacionales" },
-  { url: "/img/truckTres.jpg", title: "Logística empresarial" },
+  { url: "/img/truckv1.mp4", title: "Transporte de carga" },
+  { url: "/img/trucv2.mp4", title: "Envíos nacionales" },
+  // { url: "/img/truckTres.jpg", title: "Logística empresarial" },
   { url: "/img/truckCuatro.jpg", title: "Logística empresarial" },
-  { url: "/img/paqueteriaCajas.png", title: "Paquetería y mensajería" },
+  // { url: "/img/paqueteriaCajas.png", title: "Paquetería y mensajería" },
 ];
 
 export default function FullScreenCarousel() {
   const [current, setCurrent] = useState(0);
+  
+  // Referencias para cada video
+  const videoRefs = useRef([]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % images.length);
-    }, 4000); // Cambia cada 4 segundos
-    return () => clearInterval(interval);
-  }, []);
+  const nextSlide = () =>
+    setCurrent((prev) => (prev + 1) % images.length);
 
   const prevSlide = () =>
     setCurrent((prev) => (prev - 1 + images.length) % images.length);
-  const nextSlide = () => setCurrent((prev) => (prev + 1) % images.length);
+
+  useEffect(() => {
+    const currentItem = images[current];
+
+    if (currentItem.url.endsWith(".mp4")) {
+      const video = videoRefs.current[current];
+
+      if (video) {
+        // Reiniciar el video cada vez que se cambia de slide
+        video.currentTime = 0;
+        video.play().catch(() => {});
+
+        const handleEnded = () => nextSlide();
+        video.addEventListener("ended", handleEnded);
+
+        return () => {
+          video.removeEventListener("ended", handleEnded);
+        };
+      }
+    }
+  }, [current]);
 
   return (
     <Box
       sx={{
         position: "relative",
         width: "100%",
-        height: "500px", // Tamaño fijo para PC
-        maxWidth: "100%", // Asegura que el carrusel no se haga más grande
-        overflow: "hidden", // Oculta el contenido que se desborda
-        margin: "0 auto", // Centra el carrusel
-        display: "flex", // Flexbox para que las imágenes se centren
+        height: "500px",
+        overflow: "hidden",
+        margin: "0 auto",
+        display: "flex",
         justifyContent: "center",
         alignItems: "center",
       }}
@@ -43,25 +61,39 @@ export default function FullScreenCarousel() {
         <Box
           key={index}
           sx={{
-            display: index === current ? "block" : "none", // Mostrar solo la imagen actual
+            display: index === current ? "block" : "none",
             width: "100%",
             height: "100%",
-            transition: "opacity 1s ease-in-out",
+            position: "relative",
           }}
         >
-          <Box
-            component="img"
-            src={img.url}
-            alt={img.title}
-            sx={{
-              width: "100%", // Asegura que la imagen ocupe el 100% del ancho
-              height: "100%", // Asegura que la imagen ocupe el 100% del alto
-              objectFit: "contain", // Mantiene las proporciones de la imagen sin recortes
-              objectPosition: "center", // Centra la imagen dentro del carrusel
-              transition: "transform 1s ease",
-              "&:hover": { transform: "scale(1.05)" }, // Efecto zoom en hover
-            }}
-          />
+          {/* Reproducir video si es .mp4 */}
+          {img.url.endsWith(".mp4") ? (
+            <video
+              ref={(el) => (videoRefs.current[index] = el)} // Asignar ref único a cada video
+              src={img.url}
+              muted
+              playsInline
+              autoPlay={index === current}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <img
+              src={img.url}
+              alt={img.title}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          )}
+
+          {/* Texto sobre la imagen o video */}
           <Box
             sx={{
               position: "absolute",
@@ -76,7 +108,10 @@ export default function FullScreenCarousel() {
             <Typography
               variant="h4"
               color="#fff"
-              sx={{ fontWeight: 700, textShadow: "0 0 10px rgba(0,0,0,0.7)" }}
+              sx={{
+                fontWeight: 700,
+                textShadow: "0 0 10px rgba(0,0,0,0.7)",
+              }}
             >
               {img.title}
             </Typography>
@@ -84,7 +119,7 @@ export default function FullScreenCarousel() {
         </Box>
       ))}
 
-      {/* Flechas */}
+      {/* Flechas de navegación */}
       <IconButton
         onClick={prevSlide}
         sx={{
@@ -96,7 +131,7 @@ export default function FullScreenCarousel() {
           backgroundColor: "rgba(0,0,0,0.4)",
           "&:hover": { backgroundColor: "rgba(0,0,0,0.6)" },
           zIndex: 10,
-          display: { xs: "none", md: "block" }, // Oculta las flechas en dispositivos móviles
+          display: { xs: "none", md: "block" },
         }}
       >
         <ArrowBackIosNewIcon />
@@ -113,7 +148,7 @@ export default function FullScreenCarousel() {
           backgroundColor: "rgba(0,0,0,0.4)",
           "&:hover": { backgroundColor: "rgba(0,0,0,0.6)" },
           zIndex: 10,
-          display: { xs: "none", md: "block" }, // Oculta las flechas en dispositivos móviles
+          display: { xs: "none", md: "block" },
         }}
       >
         <ArrowForwardIosIcon />

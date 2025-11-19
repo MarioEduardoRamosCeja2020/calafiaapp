@@ -85,7 +85,16 @@ function SearchResultsSection() {
                 e.preventDefault();
                 handleSearch();
               }}
-              sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+                [theme => ({
+                  [theme.breakpoints.down('sm')]: {
+                    gap: 1, // Reducir gap en pantallas pequeñas
+                  },
+                })],
+              }}
             >
               <TextField
                 label="Serie"
@@ -167,7 +176,11 @@ function SearchResultsSection() {
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={2}
-              sx={{ width: "100%", mt: 2 }}
+              sx={{
+                width: "100%",
+                mt: 2,
+                justifyContent: "center", // Asegura que los botones estén centrados
+              }}
             >
               <Button
                 variant="contained"

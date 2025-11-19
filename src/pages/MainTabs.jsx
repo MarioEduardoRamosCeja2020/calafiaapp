@@ -96,31 +96,67 @@ function MainTabs() {
       </Paper>
 
       {value === 0 && (
-        <Box sx={{ p: 3, flex: 1, display: "flex", flexDirection: "column" }}>
-          {!hasSearched && (
-            <Grid container spacing={2} sx={{ mb: 2 }}>
-              <Grid item xs={12}>
-                <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
-                  <Carousel />
-                </Paper>
-              </Grid>
-            </Grid>
-          )}
-          <Grid container spacing={2} sx={{ flex: 1, alignItems: "stretch", width: "100%" }}>
-            <Grid item xs={12} md={4} sx={{ display: "flex", flexDirection: "column" }}>
-              <Paper elevation={3} sx={{ p: 2, borderRadius: 2, backgroundColor: "#f9f9f9", display: "flex", flexDirection: "column", flex: 1, minHeight: 400 }}>
-                <Typography variant="h6" align="center" gutterBottom>Buscar Carta Porte</Typography>
+        <Box sx={{ p: 3, flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <Grid container spacing={2} sx={{ maxWidth: 1200, width: "100%", alignItems: "center", justifyContent: "center" }}>
+            {/* Formulario: 1 parte */}
+            <Grid item xs={12} md={3}>
+              <Paper
+                elevation={3}
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  backgroundColor: "#f9f9f9",
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                  minHeight: 400,
+                }}
+              >
+                <Typography variant="h6" align="center" gutterBottom>
+                  Buscar Carta Porte
+                </Typography>
                 <Box sx={{ flex: 1, overflow: "auto" }}>
                   <SearchSerieFolioForm onSearch={handleSearch} />
                 </Box>
               </Paper>
             </Grid>
 
-            <Grid item xs={12} md={8} sx={{ display: "flex", flexDirection: "column" }}>
-              {(hasSearched || loading) && (
-                <Paper elevation={3} sx={{ p: 2, borderRadius: 2, display: "flex", flexDirection: "column", flex: 1, minHeight: 400, width: "100%" }}>
-                  <Typography variant="h6" align="center" gutterBottom>Resultados</Typography>
-                  <Box sx={{ flex: 1, width: "100%", overflow: "auto" }}>
+            {/* Carrusel o Resultados: 3 partes */}
+            <Grid item xs={12} md={9} sx={{ display: "flex", justifyContent: "center" }}>
+              {!hasSearched ? (
+                <Paper
+                  elevation={3}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    width: "100%",
+                    maxWidth: 900,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                    minHeight: 400,
+                  }}
+                >
+                  <Carousel />
+                </Paper>
+              ) : (
+                <Paper
+                  elevation={3}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    width: "100%",
+                    maxWidth: 900,
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: 400,
+                  }}
+                >
+                  <Typography variant="h6" align="center" gutterBottom>
+                    Resultados
+                  </Typography>
+                  <Box sx={{ flex: 1, width: "100%", overflowY: "auto" }}>
                     {loading ? (
                       <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <TruckLoader />
@@ -128,7 +164,9 @@ function MainTabs() {
                     ) : results.estatus.length > 0 ? (
                       <ResultsTable estatus={results.estatus} detalles={results.detalles} />
                     ) : (
-                      <Typography align="center" sx={{ mt: 2 }}>No se encontraron resultados</Typography>
+                      <Typography align="center" sx={{ mt: 2 }}>
+                        No se encontraron resultados
+                      </Typography>
                     )}
                   </Box>
                 </Paper>
@@ -141,8 +179,6 @@ function MainTabs() {
       {value === 1 && <Box sx={{ p: 3, flex: 1 }}><BranchesMap /></Box>}
       {value === 2 && <Box sx={{ p: 3, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", flex: 1 }}><MissionVision /></Box>}
       {value === 3 && <Box sx={{ p: 3, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", flex: 1 }}><QuoterDialog /></Box>}
-      {/* <QuoterDialog open={true} onClose={() => console.log("cerrar")} /> */}
-
 
       <Footer />
     </Box>

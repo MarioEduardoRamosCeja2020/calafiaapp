@@ -15,6 +15,7 @@ const craEnvVars = Object.keys(process.env)
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  
   build: {
     outDir: './dist/calafia-app'
   },
