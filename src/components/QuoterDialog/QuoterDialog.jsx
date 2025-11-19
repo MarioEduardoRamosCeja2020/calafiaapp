@@ -58,11 +58,19 @@ const AnimatedTotal = ({ label, value }) => (
   />
 );
 
-// ---------------------- Componente Autocomplete ----------------------
+import { LocationOn, Flag } from "@mui/icons-material";
+
+const countryColors = {
+  MÉXICO: "#e3f2fd",
+  USA: "#fff3e0",
+  CANADA: "#f3e5f5",
+  default: "#f5f5f5",
+};
+
 const MyAutocomplete = ({ label, value, options, onChange }) => (
   <Autocomplete
     options={options}
-    getOptionLabel={(option) => option.nombre || ""}
+    getOptionLabel={(option) => option.descripcion || ""}
     value={value || null}
     onChange={(_, val) => onChange(val)}
     isOptionEqualToValue={(option, val) => option.id === val?.id}
@@ -73,11 +81,13 @@ const MyAutocomplete = ({ label, value, options, onChange }) => (
         variant="outlined"
         sx={{
           width: "100%",
+          minWidth: 400,
           "& .MuiOutlinedInput-root": {
-            borderRadius: 3,
+            borderRadius: 4,
             backgroundColor: "rgba(255,255,255,0.85)",
             height: 60,
-            boxShadow: "inset 0 0 4px rgba(0,0,0,0.1)",
+            boxShadow: "0 6px 18px rgba(0,0,0,0.1)",
+            "&:hover": { boxShadow: "0 8px 24px rgba(0,0,0,0.15)" },
           },
           "& .MuiAutocomplete-input": {
             fontSize: "1rem",
@@ -85,6 +95,49 @@ const MyAutocomplete = ({ label, value, options, onChange }) => (
         }}
       />
     )}
+    renderOption={(props, option) => {
+      const bgColor = countryColors[option.CiudadO] || countryColors[option.PaisO] || countryColors.default;
+      return (
+        <li
+          {...props}
+          style={{
+            backgroundColor: bgColor,
+            whiteSpace: "normal",
+            padding: "12px 16px",
+            borderBottom: "1px solid rgba(0,0,0,0.05)",
+            display: "flex",
+            flexDirection: "column",
+            borderRadius: 6,
+            marginBottom: 4,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
+            <LocationOn sx={{ color: "#1976d2", mr: 1 }} />
+            <strong style={{ fontSize: "0.95rem", color: "#00004e" }}>
+              {option.nombre}
+            </strong>
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Flag sx={{ color: "#ff6f00", mr: 1, fontSize: "0.8rem" }} />
+            <span style={{ fontSize: "0.85rem", color: "#555", wordBreak: "break-word" }}>
+              {option.descripcion}
+            </span>
+          </Box>
+        </li>
+      );
+    }}
+    ListboxProps={{
+      style: {
+        maxHeight: 400,
+        width: "auto",
+        minWidth: 550,
+        boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
+        borderRadius: 8,
+        backdropFilter: "blur(10px)",
+        backgroundColor: "rgba(255,255,255,0.85)",
+        padding: 8,
+      },
+    }}
   />
 );
 
@@ -138,10 +191,12 @@ const QuoterNeoGlassPro = () => {
         const res = await fetch("http://localhost:3000/full-routes");
         if (!res.ok) throw new Error("Error cargando rutas");
         const data = await res.json();
+
         setRutas(
           data.map((r) => ({
-            id: r.Id_rut,
+            id: r.Destino_rut, // o Id_rut según tu API
             nombre: r.Nombre_rut,
+            descripcion: `${r.CiudadO}, ${r.EstadoO}, ${r.PaisO} → ${r.CiudadD}, ${r.EstadoD}, ${r.PaisD}`,
             origenDesc: `${r.CiudadO}, ${r.EstadoO}, ${r.PaisO}`,
             destinoDesc: `${r.CiudadD}, ${r.EstadoD}, ${r.PaisD}`,
           }))
