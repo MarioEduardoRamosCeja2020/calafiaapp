@@ -117,6 +117,9 @@ const QuoterNeoGlassProPanels = () => {
             id: r.Id_rut,
             Nombre: r.Nombre_rut,
             descripcion: `${r.Nombre_rut}`,
+            CuotaTonelada:r.CuotaTonelada_rut,
+            CuotaAuto:r.CuotaAuto_rut,
+            CuotaBarco:r.CuotaBarco_rut,
             origenDesc: `${r.CiudadO}, ${r.EstadoO}, ${r.PaisO}`,
             destinoDesc: `${r.CiudadD}, ${r.EstadoD}, ${r.PaisD}`,
             // Se asume que CuotaTonelada está en la respuesta de la ruta, si no es así, esta línea fallará
@@ -202,56 +205,114 @@ const QuoterNeoGlassProPanels = () => {
     // ya que la lógica original contenía errores de sintaxis (p.ej. `Math.Round`, variable `CuotaAuto` no definida)
     // y variables no definidas.
 
-    // const CuotaTonelada = parseFloat(form.origen?.CuotaTonelada || 0); // **CORRECCIÓN:** Usar `?.` para seguridad
-    // const pesoTotal = (volumen * 500);
-    // const PesoMinimo = 100;
-    // const CuotaEntrega = 309.5; 
-    // const CuotaMinimoEntrega = 223;
-    // const MinimoEntega = 223.00;
-    // const CuotaManiobras = 263.74;
-    // // const CuotaAuto = ??? (Variable no definida)
+    const CuotaTonelada = parseFloat(form.origen?.CuotaTonelada || 0); // **CORRECCIÓN:** Usar `?.` para seguridad
+    console.log(CuotaTonelada);
+    const pesoTotal = (volumen * 500);
+    const PesoMinimo = 100;
+    const CuotaEntrega = 309.5; 
+    const CuotaMinimoEntrega = 223;
+    const MinimoEntega = 223.00;
+    const CuotaManiobras = 263.74;
+    // const CuotaAuto = ??? (Variable no definida)
+    const CuotaAuto = parseFloat(form.origen?.CuotaAuto || 0);
+    const CuotaBarco = parseFloat(form.origen?.CuotaBarco || 0);
+    let CalculaConceptos = [0, 0, 0, 0, 0, 0]; // Inicializar para evitar errores de índice
+    
+    if(pesoTotal >= PesoMinimo){
+      
+      CalculaConceptos[0] = Math.round((pesoTotal / 1000) * CuotaTonelada * 100) / 100;
+    }else{
+      // **CORRECCIÓN:** Math.Round no existe en JS. Se usa Math.round y se divide por 100 para 2 decimales.
+      CalculaConceptos[0] = Math.round((pesoTotal / PesoMinimo) * CuotaTonelada * 100) / 100;
+    }
+    
+    if(form.domicilio){
+      if(pesoTotal <= MinimoEntega){
+         CalculaConceptos[3] = CuotaMinimoEntrega;
+      }else{
+         // **CORRECCIÓN:** Math.Round no existe en JS.
+         CalculaConceptos[3] = Math.round((pesoTotal / MinimoEntega) * CuotaEntrega * 100) / 100;
+      }
+    }else{
+      CalculaConceptos[3] = 0;
+    }
+    
+    if (pesoTotal >= PesoMinimo){
+      // **CORRECCIÓN:** Math.Round no existe en JS.
+      CalculaConceptos[2] = Math.round((pesoTotal / 1000) * CuotaManiobras * 100) / 100;
+    }else{
+      // **CORRECCIÓN:** Math.Round no existe en JS.
+      CalculaConceptos[2] = Math.round((PesoMinimo / 1000) * CuotaManiobras * 100) / 100;
+    }
+    
+    if (pesoTotal >= PesoMinimo){
+      // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
+      CalculaConceptos[5] = Math.round((pesoTotal / 1000) * (CuotaAuto), 2);
+    } else {
+      // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
+      CalculaConceptos[5] = Math.round((PesoMinimo / 1000) * (CuotaAuto), 2);
+    }
     // 
-    // let CalculaConceptos = [0, 0, 0, 0, 0, 0]; // Inicializar para evitar errores de índice
-    // 
-    // if(pesoTotal >= PesoMinimo){
-    //   CalculaConceptos[0] = Math.round((pesoTotal / 1000) * CuotaTonelada * 100) / 100;
-    // }else{
-    //   // **CORRECCIÓN:** Math.Round no existe en JS. Se usa Math.round y se divide por 100 para 2 decimales.
-    //   CalculaConceptos[0] = Math.round((pesoTotal / PesoMinimo) * CuotaTonelada * 100) / 100;
-    // }
-    // 
-    // if(form.domicilio){
-    //   if(pesoTotal <= MinimoEntega){
-    //      CalculaConceptos[3] = CuotaMinimoEntrega;
-    //   }else{
-    //      // **CORRECCIÓN:** Math.Round no existe en JS.
-    //      CalculaConceptos[3] = Math.round((pesoTotal / MinimoEntega) * CuotaEntrega * 100) / 100;
-    //   }
-    // }else{
-    //   CalculaConceptos[3] = 0;
-    // }
-    // 
-    // if (pesoTotal >= PesoMinimo){
-    //   // **CORRECCIÓN:** Math.Round no existe en JS.
-    //   CalculaConceptos[2] = Math.round((pesoTotal / 1000) * CuotaManiobras * 100) / 100;
-    // }else{
-    //   // **CORRECCIÓN:** Math.Round no existe en JS.
-    //   CalculaConceptos[2] = Math.round((PesoMinimo / 1000) * CuotaManiobras * 100) / 100;
-    // }
-    // 
-    // if (pesoTotal >= PesoMinimo){
-    //   // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
-    //   // CalculaConceptos[5] = Math.round((pesoTotal / 1000) * (CuotaAuto), 2);
-    // } else {
-    //   // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
-    //   // CalculaConceptos[5] = Math.round((PesoMinimo / 1000) * (CuotaAuto), 2);
-    // }
-    // 
+console.log("form domicilio :",form.domicilio);
+    if(form.domicilio){
+      if(pesoTotal <= MinimoEntega){
+         CalculaConceptos[3] = CuotaMinimoEntrega;
+      }else{
+         // **CORRECCIÓN:** Math.Round no existe en JS.
+         CalculaConceptos[3] = Math.round((pesoTotal / MinimoEntega) * CuotaEntrega * 100) / 100;
+      }
+    }else{
+      CalculaConceptos[3] = 0;
+    }
+   if(!form.origen) {
+    if (pesoTotal >= PesoMinimo){
+      // **CORRECCIÓN:** Math.Round no existe en JS.
+      CalculaConceptos[2] = Math.round((pesoTotal / 1000) * CuotaManiobras * 100) / 100;
+    }else{
+      // **CORRECCIÓN:** Math.Round no existe en JS.
+      CalculaConceptos[2] = Math.round((PesoMinimo / 1000) * CuotaManiobras * 100) / 100;
+    }
+    
+    if (pesoTotal >= PesoMinimo){
+      // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
+      CalculaConceptos[5] = Math.round((pesoTotal / 1000) * (CuotaAuto), 2);
+    } else {
+      // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
+      CalculaConceptos[5] = Math.round((PesoMinimo / 1000) * (CuotaAuto), 2);
+    }
+    
+    if (CuotaBarco > 0)
+      {
+        if (pesoTotal >= PesoMinimo)
+          CalculaConceptos[6] = Math.Round((pesoTotal / 1000) * (CuotaBarco), 2);
+                 else
+                  CalculaConceptos[6] = Math.Round((PesoMinimo / 1000) * (CuotaBarco), 2);
+             }
+             else
+              CalculaConceptos[6] = 0;
+
+             for (let i = 7; i < CalculaConceptos.length; i++) {
+                  CalculaConceptos[i] = 0;
+                }
+      }else{
+                     for (let i = 2; i < CalculaConceptos.Length; i++)
+             {
+                 if (i === 2 || i >= 5)
+                     CalculaConceptos[i] = 0;
+             }
+      }
+    let Subtotal = 0;
+    let calculo = 0;
+    for (let i = 0; i < CalculaConceptos.Length; i++)
+     {
+         Subtotal = Subtotal + CalculaConceptos[i];
+         calculo = Math.Round((calculo + CalculaConceptos[i] * (Convert.ToDecimal(pctjeiva_txt.Text) / 100)), 2);
+     }
     // const subTotalCalculado = CalculaConceptos.reduce((a, b) => a + b, 0);
 
     // Se usa la lógica de cálculo simplificada para evitar errores de variables no definidas
     // y métodos matemáticos no estándar (`Math.Round`).
-    const subtotalCalculado = volumen * 100;
+    const subtotalCalculado = Subtotal * 100;
     const ivaCalculado = subtotalCalculado * 0.16;
     const totalCalculado = subtotalCalculado * 1.16;
     
