@@ -192,142 +192,277 @@ const QuoterNeoGlassProPanels = () => {
 
   const handleDeleteArticle = (id) => setArticulos(articulos.filter(item => item.id !== id));
   
-  const handleCalculate = () => {
-    const volumen = parseFloat(form.volumenAcumulado);
+//   const handleCalculate = () => {
+//     const volumen = parseFloat(form.volumenAcumulado);
     
-    if (volumen === 0) {
-          setNotification({ open: true, message: "Agrega artículos para calcular.", severity: "warning" });
-          return;
-    }
+//     if (volumen === 0) {
+//           setNotification({ open: true, message: "Agrega artículos para calcular.", severity: "warning" });
+//           return;
+//     }
     
-    // **NOTA:** La propiedad `CuotaTonelada` NO existe en `form.origen` según el fetch/map en `useEffect`.
-    // Se ha comentado la parte de cálculo compleja y se ha dejado un cálculo de ejemplo,
-    // ya que la lógica original contenía errores de sintaxis (p.ej. `Math.Round`, variable `CuotaAuto` no definida)
-    // y variables no definidas.
+//     // **NOTA:** La propiedad `CuotaTonelada` NO existe en `form.origen` según el fetch/map en `useEffect`.
+//     // Se ha comentado la parte de cálculo compleja y se ha dejado un cálculo de ejemplo,
+//     // ya que la lógica original contenía errores de sintaxis (p.ej. `Math.Round`, variable `CuotaAuto` no definida)
+//     // y variables no definidas.
 
-    const CuotaTonelada = parseFloat(form.origen?.CuotaTonelada || 0); // **CORRECCIÓN:** Usar `?.` para seguridad
-    console.log(CuotaTonelada);
-    const pesoTotal = (volumen * 500);
+//     const CuotaTonelada = parseFloat(form.origen?.CuotaTonelada || 0); // **CORRECCIÓN:** Usar `?.` para seguridad
+//     console.log(CuotaTonelada);
+//     const pesoTotal = (volumen * 500);
+//     const PesoMinimo = 100;
+//     const CuotaEntrega = 309.5; 
+//     const CuotaMinimoEntrega = 223;
+//     const MinimoEntega = 223.00;
+//     const CuotaManiobras = 263.74;
+//     // const CuotaAuto = ??? (Variable no definida)
+//     const CuotaAuto = parseFloat(form.origen?.CuotaAuto || 0);
+//     const CuotaBarco = parseFloat(form.origen?.CuotaBarco || 0);
+//     let CalculaConceptos = [0, 0, 0, 0, 0, 0]; // Inicializar para evitar errores de índice
+    
+//     if(pesoTotal >= PesoMinimo){
+      
+//       CalculaConceptos[0] = Math.round((pesoTotal / 1000) * CuotaTonelada * 100) / 100;
+//     }else{
+//       // **CORRECCIÓN:** Math.Round no existe en JS. Se usa Math.round y se divide por 100 para 2 decimales.
+//       CalculaConceptos[0] = Math.round((pesoTotal / PesoMinimo) * CuotaTonelada * 100) / 100;
+//     }
+    
+//     if(form.domicilio){
+//       if(pesoTotal <= MinimoEntega){
+//          CalculaConceptos[3] = CuotaMinimoEntrega;
+//       }else{
+//          // **CORRECCIÓN:** Math.Round no existe en JS.
+//          CalculaConceptos[3] = Math.round((pesoTotal / MinimoEntega) * CuotaEntrega * 100) / 100;
+//       }
+//     }else{
+//       CalculaConceptos[3] = 0;
+//     }
+    
+//     if (pesoTotal >= PesoMinimo){
+//       // **CORRECCIÓN:** Math.Round no existe en JS.
+//       CalculaConceptos[2] = Math.round((pesoTotal / 1000) * CuotaManiobras * 100) / 100;
+//     }else{
+//       // **CORRECCIÓN:** Math.Round no existe en JS.
+//       CalculaConceptos[2] = Math.round((PesoMinimo / 1000) * CuotaManiobras * 100) / 100;
+//     }
+    
+//     if (pesoTotal >= PesoMinimo){
+//       // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
+//       CalculaConceptos[5] = Math.round((pesoTotal / 1000) * (CuotaAuto), 2);
+//     } else {
+//       // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
+//       CalculaConceptos[5] = Math.round((PesoMinimo / 1000) * (CuotaAuto), 2);
+//     }
+//     // 
+// console.log("form domicilio :",form.domicilio);
+//     if(form.domicilio){
+//       if(pesoTotal <= MinimoEntega){
+//          CalculaConceptos[3] = CuotaMinimoEntrega;
+//       }else{
+//          // **CORRECCIÓN:** Math.Round no existe en JS.
+//          CalculaConceptos[3] = Math.round((pesoTotal / MinimoEntega) * CuotaEntrega * 100) / 100;
+//       }
+//     }else{
+//       CalculaConceptos[3] = 0;
+//     }
+//    if(!form.origen) {
+//     if (pesoTotal >= PesoMinimo){
+//       // **CORRECCIÓN:** Math.Round no existe en JS.
+//       CalculaConceptos[2] = Math.round((pesoTotal / 1000) * CuotaManiobras * 100) / 100;
+//     }else{
+//       // **CORRECCIÓN:** Math.Round no existe en JS.
+//       CalculaConceptos[2] = Math.round((PesoMinimo / 1000) * CuotaManiobras * 100) / 100;
+//     }
+    
+//     if (pesoTotal >= PesoMinimo){
+//       // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
+//       CalculaConceptos[5] = Math.round((pesoTotal / 1000) * (CuotaAuto), 2);
+//     } else {
+//       // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
+//       CalculaConceptos[5] = Math.round((PesoMinimo / 1000) * (CuotaAuto), 2);
+//     }
+    
+//     if (CuotaBarco > 0)
+//       {
+//         if (pesoTotal >= PesoMinimo)
+//           CalculaConceptos[6] = Math.Round((pesoTotal / 1000) * (CuotaBarco), 2);
+//                  else
+//                   CalculaConceptos[6] = Math.Round((PesoMinimo / 1000) * (CuotaBarco), 2);
+//              }
+//              else
+//               CalculaConceptos[6] = 0;
+
+//              for (let i = 7; i < CalculaConceptos.length; i++) {
+//                   CalculaConceptos[i] = 0;
+//                 }
+//       }else{
+//                      for (let i = 2; i < CalculaConceptos.Length; i++)
+//              {
+//                  if (i === 2 || i >= 5)
+//                      CalculaConceptos[i] = 0;
+//              }
+//       }
+//     let Subtotal = 0;
+//     let calculo = 0;
+//     for (let i = 0; i < CalculaConceptos.Length; i++)
+//      {
+//          Subtotal = Subtotal + CalculaConceptos[i];
+//          calculo = Math.Round((calculo + CalculaConceptos[i] * (Convert.ToDecimal(pctjeiva_txt.Text) / 100)), 2);
+//      }
+//     // const subTotalCalculado = CalculaConceptos.reduce((a, b) => a + b, 0);
+
+//     // Se usa la lógica de cálculo simplificada para evitar errores de variables no definidas
+//     // y métodos matemáticos no estándar (`Math.Round`).
+//     const subtotalCalculado = Subtotal * 100;
+//     const ivaCalculado = subtotalCalculado * 0.16;
+//     const totalCalculado = subtotalCalculado * 1.16;
+    
+//     setForm(prev => ({
+//         ...prev,
+//         // **CORRECCIÓN:** Se usan las variables calculadas o se mantiene la lógica original simple.
+//         subtotal: subtotalCalculado.toFixed(2), 
+//         iva: ivaCalculado.toFixed(2),
+//         total: totalCalculado.toFixed(2),
+//         retIva: '0.00', // Valor fijo para el ejemplo
+//     }));
+//     setNotification({ open: true, message: "Cálculo de costos realizado con " + volumen + " m³.", severity: "success" });
+//   };
+  
+
+const handleCalculate = () => {
+
+    const volumen = parseFloat(form.volumenAcumulado || 0);
+    if (volumen === 0) {
+        setNotification({
+            open: true,
+            message: "Agrega artículos para calcular.",
+            severity: "warning",
+        });
+        return;
+    }
+
+    // -------------------------------
+    // VARIABLES BASE (idénticas al C#)
+    // -------------------------------
+    const SMts3 = volumen;
     const PesoMinimo = 100;
-    const CuotaEntrega = 309.5; 
+    const factorPeso = 500;     // igual que C#
+    const MinimoEntrega = 223;
     const CuotaMinimoEntrega = 223;
-    const MinimoEntega = 223.00;
+    const CuotaEntrega = 309.5;
     const CuotaManiobras = 263.74;
-    // const CuotaAuto = ??? (Variable no definida)
+
+    const pctIVA = 16;      // IVA estándar México
+    const pctRetIVA = 4;    // 4% RET IVA típico para moral
+
+    // Cuotas desde la ruta seleccionada
+    const CuotaTonelada = parseFloat(form.origen?.CuotaTonelada || 0);
     const CuotaAuto = parseFloat(form.origen?.CuotaAuto || 0);
     const CuotaBarco = parseFloat(form.origen?.CuotaBarco || 0);
-    let CalculaConceptos = [0, 0, 0, 0, 0, 0]; // Inicializar para evitar errores de índice
-    
-    if(pesoTotal >= PesoMinimo){
-      
-      CalculaConceptos[0] = Math.round((pesoTotal / 1000) * CuotaTonelada * 100) / 100;
-    }else{
-      // **CORRECCIÓN:** Math.Round no existe en JS. Se usa Math.round y se divide por 100 para 2 decimales.
-      CalculaConceptos[0] = Math.round((pesoTotal / PesoMinimo) * CuotaTonelada * 100) / 100;
-    }
-    
-    if(form.domicilio){
-      if(pesoTotal <= MinimoEntega){
-         CalculaConceptos[3] = CuotaMinimoEntrega;
-      }else{
-         // **CORRECCIÓN:** Math.Round no existe en JS.
-         CalculaConceptos[3] = Math.round((pesoTotal / MinimoEntega) * CuotaEntrega * 100) / 100;
-      }
-    }else{
-      CalculaConceptos[3] = 0;
-    }
-    
-    if (pesoTotal >= PesoMinimo){
-      // **CORRECCIÓN:** Math.Round no existe en JS.
-      CalculaConceptos[2] = Math.round((pesoTotal / 1000) * CuotaManiobras * 100) / 100;
-    }else{
-      // **CORRECCIÓN:** Math.Round no existe en JS.
-      CalculaConceptos[2] = Math.round((PesoMinimo / 1000) * CuotaManiobras * 100) / 100;
-    }
-    
-    if (pesoTotal >= PesoMinimo){
-      // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
-      CalculaConceptos[5] = Math.round((pesoTotal / 1000) * (CuotaAuto), 2);
-    } else {
-      // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
-      CalculaConceptos[5] = Math.round((PesoMinimo / 1000) * (CuotaAuto), 2);
-    }
-    // 
-console.log("form domicilio :",form.domicilio);
-    if(form.domicilio){
-      if(pesoTotal <= MinimoEntega){
-         CalculaConceptos[3] = CuotaMinimoEntrega;
-      }else{
-         // **CORRECCIÓN:** Math.Round no existe en JS.
-         CalculaConceptos[3] = Math.round((pesoTotal / MinimoEntega) * CuotaEntrega * 100) / 100;
-      }
-    }else{
-      CalculaConceptos[3] = 0;
-    }
-   if(!form.origen) {
-    if (pesoTotal >= PesoMinimo){
-      // **CORRECCIÓN:** Math.Round no existe en JS.
-      CalculaConceptos[2] = Math.round((pesoTotal / 1000) * CuotaManiobras * 100) / 100;
-    }else{
-      // **CORRECCIÓN:** Math.Round no existe en JS.
-      CalculaConceptos[2] = Math.round((PesoMinimo / 1000) * CuotaManiobras * 100) / 100;
-    }
-    
-    if (pesoTotal >= PesoMinimo){
-      // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
-      CalculaConceptos[5] = Math.round((pesoTotal / 1000) * (CuotaAuto), 2);
-    } else {
-      // **CORRECCIÓN:** Math.Round no existe en JS. Además, CuotaAuto no está definida.
-      CalculaConceptos[5] = Math.round((PesoMinimo / 1000) * (CuotaAuto), 2);
-    }
-    
-    if (CuotaBarco > 0)
-      {
+
+    // -------------------------------
+    // CALCULO DE PESO TOTAL
+    // -------------------------------
+    const pesoTotal = SMts3 * factorPeso;
+
+    // Array idéntico al C#
+    let CalculaConceptos = new Array(10).fill(0);
+
+    //---------------------------------------
+    // 0 = TONELADA
+    //---------------------------------------
+    if (pesoTotal > 0) {
         if (pesoTotal >= PesoMinimo)
-          CalculaConceptos[6] = Math.Round((pesoTotal / 1000) * (CuotaBarco), 2);
-                 else
-                  CalculaConceptos[6] = Math.Round((PesoMinimo / 1000) * (CuotaBarco), 2);
-             }
-             else
-              CalculaConceptos[6] = 0;
+            CalculaConceptos[0] = round2((pesoTotal / 1000) * CuotaTonelada);
+        else
+            CalculaConceptos[0] = round2((PesoMinimo / 1000) * CuotaTonelada);
+    }
 
-             for (let i = 7; i < CalculaConceptos.length; i++) {
-                  CalculaConceptos[i] = 0;
-                }
-      }else{
-                     for (let i = 2; i < CalculaConceptos.Length; i++)
-             {
-                 if (i === 2 || i >= 5)
-                     CalculaConceptos[i] = 0;
-             }
-      }
-    let Subtotal = 0;
-    let calculo = 0;
-    for (let i = 0; i < CalculaConceptos.Length; i++)
-     {
-         Subtotal = Subtotal + CalculaConceptos[i];
-         calculo = Math.Round((calculo + CalculaConceptos[i] * (Convert.ToDecimal(pctjeiva_txt.Text) / 100)), 2);
-     }
-    // const subTotalCalculado = CalculaConceptos.reduce((a, b) => a + b, 0);
+    //---------------------------------------
+    // 3 = ENTREGA A DOMICILIO
+    //---------------------------------------
+    if (form.domicilio) {
+        if (pesoTotal <= MinimoEntrega)
+            CalculaConceptos[3] = CuotaMinimoEntrega;
+        else
+            CalculaConceptos[3] = round2((pesoTotal / MinimoEntrega) * CuotaEntrega);
+    }
 
-    // Se usa la lógica de cálculo simplificada para evitar errores de variables no definidas
-    // y métodos matemáticos no estándar (`Math.Round`).
-    const subtotalCalculado = Subtotal * 100;
-    const ivaCalculado = subtotalCalculado * 0.16;
-    const totalCalculado = subtotalCalculado * 1.16;
-    
+    //---------------------------------------
+    // 2 = MANIOBRAS
+    //---------------------------------------
+    if (pesoTotal >= PesoMinimo)
+        CalculaConceptos[2] = round2((pesoTotal / 1000) * CuotaManiobras);
+    else
+        CalculaConceptos[2] = round2((PesoMinimo / 1000) * CuotaManiobras);
+
+    //---------------------------------------
+    // 5 = AUTO
+    //---------------------------------------
+    if (CuotaAuto > 0) {
+        if (pesoTotal >= PesoMinimo)
+            CalculaConceptos[5] = round2((pesoTotal / 1000) * CuotaAuto);
+        else
+            CalculaConceptos[5] = round2((PesoMinimo / 1000) * CuotaAuto);
+    }
+
+    //---------------------------------------
+    // 6 = BARCO
+    //---------------------------------------
+    if (CuotaBarco > 0) {
+        if (pesoTotal >= PesoMinimo)
+            CalculaConceptos[6] = round2((pesoTotal / 1000) * CuotaBarco);
+        else
+            CalculaConceptos[6] = round2((PesoMinimo / 1000) * CuotaBarco);
+    }
+
+    //---------------------------------------
+    // CALCULO SUBTOTAL
+    //---------------------------------------
+    let Subtotal = CalculaConceptos.reduce((sum, val) => sum + val, 0);
+
+    // Seguro: 0.9% (idéntico al C#)
+    if (form.seguro && parseFloat(form.seguro) > 0) {
+        Subtotal += parseFloat(form.seguro) * 0.009;
+    }
+
+    //---------------------------------------
+    // IVA y RET IVA
+    //---------------------------------------
+    const IVA = round2(Subtotal * (pctIVA / 100));
+    const retIVA = (form.tipoCliente === "moral")
+        ? round2(Subtotal * (pctRetIVA / 100))
+        : 0;
+
+    //---------------------------------------
+    // TOTAL
+    //---------------------------------------
+    const Total = round2(Subtotal + IVA - retIVA);
+
+    //---------------------------------------
+    // ACTUALIZAR FORM
+    //---------------------------------------
     setForm(prev => ({
         ...prev,
-        // **CORRECCIÓN:** Se usan las variables calculadas o se mantiene la lógica original simple.
-        subtotal: subtotalCalculado.toFixed(2), 
-        iva: ivaCalculado.toFixed(2),
-        total: totalCalculado.toFixed(2),
-        retIva: '0.00', // Valor fijo para el ejemplo
+        subtotal: Subtotal.toFixed(2),
+        iva: IVA.toFixed(2),
+        retIva: retIVA.toFixed(2),
+        total: Total.toFixed(2),
     }));
-    setNotification({ open: true, message: "Cálculo de costos realizado con " + volumen + " m³.", severity: "success" });
-  };
-  
-  const handleClear = () => {
+
+    setNotification({
+        open: true,
+        message: "Cálculo aplicado correctamente.",
+        severity: "success",
+    });
+};
+
+
+// Función auxiliar idéntica a Math.Round(C#, 2)
+function round2(num) {
+    return Math.round(num * 100) / 100;
+}
+
+const handleClear = () => {
       setForm(initialFormState);
       setDetalleEnvio(initialDetalleEnvioState);
       setArticulos([]);
