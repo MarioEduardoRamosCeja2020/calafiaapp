@@ -29,6 +29,10 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import Indicadores from "./Indicadores";
 
+/* =========================
+   FUNCIONES AUXILIARES
+========================= */
+
 const mapEstadoToPasoIndex = (estado) => {
   const pasos = ["DOCUMENTO", "CARGA", "TRANSITO", "ARRIBÓ", "PENDIENTE", "ENTREGA"];
   return pasos.indexOf(estado?.toUpperCase() || "");
@@ -47,31 +51,54 @@ const renderPasoChip = (estado) => {
   const paso = mapa[estado?.toUpperCase()];
   return paso ? (
     <Fade in timeout={500}>
-      <Chip icon={paso.icon} label={paso.label} color={paso.color} size="medium" sx={{ fontWeight: "bold" }} />
+      <Chip
+        icon={paso.icon}
+        label={paso.label}
+        color={paso.color}
+        size="medium"
+        sx={{ fontWeight: "bold" }}
+      />
     </Fade>
   ) : (
     estado
   );
 };
 
-const handleDownload = (xmlUrl) => {
-  fetch(`http://www.grupocalafia.com.mx/${xmlUrl}`)
-    .then((res) => {
-      if (!res.ok) throw new Error("No se pudo descargar el archivo");
-      return res.blob();
-    })
-    .then((blob) => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = xmlUrl.split("/").pop();
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    })
-    .catch(() => alert("Error al descargar el archivo XML."));
+/* =========================
+   DESCARGA SEGURA
+========================= */
+
+const downloadFile = async (url, filename) => {
+  try {
+    const fullUrl = url?.startsWith("http")
+      ? url
+      : `${url}`;
+
+    const response = await fetch(fullUrl);
+
+    if (!response.ok) throw new Error("Error al descargar archivo");
+
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = filename;
+
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(blobUrl);
+  } catch (error) {
+    console.error("Error descargando archivo:", error);
+    alert("No se pudo descargar el archivo");
+  }
 };
+
+/* =========================
+   COMPONENTE
+========================= */
 
 function ResultsTable({ estatus, detalles }) {
   const theme = useTheme();
@@ -80,12 +107,15 @@ function ResultsTable({ estatus, detalles }) {
   if (!estatus || estatus.length === 0) {
     return (
       <Box sx={{ py: 4, textAlign: "center" }}>
-        <Typography variant="body1">Realiza una búsqueda para ver resultados.</Typography>
+        <Typography variant="body1">
+          Realiza una búsqueda para ver resultados.
+        </Typography>
       </Box>
     );
   }
 
   const row = estatus[0];
+
   const pasoActual = mapEstadoToPasoIndex(row.esta_avan);
 
   const fechaExpedicion = row.fechFac
@@ -118,6 +148,7 @@ function ResultsTable({ estatus, detalles }) {
           <Typography variant="h6" fontWeight="bold">
             DATOS CARTA PORTE
           </Typography>
+
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={2}
@@ -127,24 +158,9 @@ function ResultsTable({ estatus, detalles }) {
               variant="contained"
               color="error"
               startIcon={<PictureAsPdfIcon />}
-              href={`http://www.grupocalafia.com.mx/${row.rutaPDF}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{
-                flex: 1, // ocupa mismo espacio
-                maxWidth: 250, // ancho máximo en desktop
-                width: { xs: "100%", sm: "auto" }, // móvil ocupa 100%
-                minWidth: 160, // mínimo para que no se vea demasiado pequeño
-              }}
-            >
-              Ver PDF
-            </Button>
-
-            <Button
-              variant="contained"
-              color="success"
-              startIcon={<DescriptionIcon />}
-              onClick={() => handleDownload(row.rutaXML)}
+              onClick={() =>
+                downloadFile(row.rutaPDF, "CartaPorte.pdf")
+              }
               sx={{
                 flex: 1,
                 maxWidth: 250,
@@ -152,18 +168,32 @@ function ResultsTable({ estatus, detalles }) {
                 minWidth: 160,
               }}
             >
-              Descargar XML
+              DESCARGAR PDF
+            </Button>
+
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<DescriptionIcon />}
+              onClick={() =>
+                downloadFile(row.rutaXML, "CartaPorte.xml")
+              }
+              sx={{
+                flex: 1,
+                maxWidth: 250,
+                width: { xs: "100%", sm: "auto" },
+                minWidth: 160,
+              }}
+            >
+              DESCARGAR XML
             </Button>
           </Stack>
-
-
         </Box>
 
         <Divider sx={{ my: 2 }} />
 
-        {/* Datos generales como grid responsivo */}
+        {/* Datos */}
         <Grid container spacing={2}>
-          {/* Columna 1 */}
           <Grid item xs={12} sm={6}>
             <Grid container direction="column" spacing={1}>
               <Grid item>
@@ -179,7 +209,9 @@ function ResultsTable({ estatus, detalles }) {
               <Grid item>
                 <Typography variant="body2">
                   Serie y Folio:{" "}
-                  <strong>{(row.serie?.toUpperCase() || "")} - {row.folio || ""}</strong>
+                  <strong>
+                    {(row.serie?.toUpperCase() || "")} - {row.folio || ""}
+                  </strong>
                 </Typography>
               </Grid>
               <Grid item>
@@ -190,12 +222,12 @@ function ResultsTable({ estatus, detalles }) {
             </Grid>
           </Grid>
 
-          {/* Columna 2 */}
           <Grid item xs={12} sm={6}>
             <Grid container direction="column" spacing={1}>
               <Grid item>
                 <Typography variant="body2">
-                  Fecha y hora de expedición: <strong>{fechaExpedicion}</strong>
+                  Fecha y hora de expedición:{" "}
+                  <strong>{fechaExpedicion}</strong>
                 </Typography>
               </Grid>
               <Grid item>
@@ -205,14 +237,19 @@ function ResultsTable({ estatus, detalles }) {
               </Grid>
               <Grid item>
                 <Typography variant="body2">
-                  Estatus: <strong>{row.esta_docu === "C" ? "CANCELADA" : row.esta_docu}</strong>
+                  Estatus:{" "}
+                  <strong>
+                    {row.esta_docu === "C"
+                      ? "CANCELADA"
+                      : row.esta_docu}
+                  </strong>
                 </Typography>
               </Grid>
             </Grid>
           </Grid>
         </Grid>
 
-        {/* Estado de avance */}
+        {/* Estado */}
         <Box sx={{ mt: 2 }}>
           <Typography variant="subtitle2" color="text.secondary">
             Estado de avance
@@ -220,7 +257,7 @@ function ResultsTable({ estatus, detalles }) {
           {renderPasoChip(row.esta_avan)}
         </Box>
 
-        {/* Tabla de detalles */}
+        {/* Detalles */}
         {detalles && detalles.length > 0 && (
           <>
             <Divider sx={{ my: 3 }} />
@@ -229,7 +266,6 @@ function ResultsTable({ estatus, detalles }) {
             </Typography>
 
             {isMobile ? (
-              // Vista tipo tarjeta en móvil
               <Stack spacing={2}>
                 {detalles.map((item, idx) => (
                   <Paper key={idx} variant="outlined" sx={{ p: 2 }}>
@@ -240,13 +276,13 @@ function ResultsTable({ estatus, detalles }) {
                       <strong>CLASE:</strong> {item.CLASE}
                     </Typography>
                     <Typography variant="body2">
-                      <strong>QUE SE DICE QUE CONTIENE:</strong> {item.QUE_SE_DICE_QUE_CONTIENE}
+                      <strong>CONTENIDO:</strong>{" "}
+                      {item.QUE_SE_DICE_QUE_CONTIENE}
                     </Typography>
                   </Paper>
                 ))}
               </Stack>
             ) : (
-              // Tabla en escritorio
               <Box sx={{ overflowX: "auto", width: "100%" }}>
                 <TableContainer component={Paper} sx={{ minWidth: 800 }}>
                   <Table size="small">
@@ -254,7 +290,7 @@ function ResultsTable({ estatus, detalles }) {
                       <TableRow>
                         <TableCell><strong>CANTIDAD</strong></TableCell>
                         <TableCell><strong>CLASE</strong></TableCell>
-                        <TableCell><strong>QUE SE DICE QUE CONTIENE</strong></TableCell>
+                        <TableCell><strong>CONTENIDO</strong></TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -262,7 +298,9 @@ function ResultsTable({ estatus, detalles }) {
                         <TableRow key={idx}>
                           <TableCell>{item.CANTIDAD}</TableCell>
                           <TableCell>{item.CLASE}</TableCell>
-                          <TableCell>{item.QUE_SE_DICE_QUE_CONTIENE}</TableCell>
+                          <TableCell>
+                            {item.QUE_SE_DICE_QUE_CONTIENE}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

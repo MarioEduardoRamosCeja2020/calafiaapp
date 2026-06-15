@@ -1,80 +1,311 @@
 .footer-root {
-  background-color: #00004e; /* azul marino */
+  position: fixed;
+
+  bottom: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  z-index: 1400;
+
+  background: linear-gradient(
+    90deg,
+    #020b2d,
+    #04145c,
+    #03113d
+  );
+
+  border-top: 3px solid #001f8f;
+
   color: white;
-  overflow: hidden;
-  padding: 20px 0 40px;
-  text-align: center;
+
+  padding: 8px 16px;
+
+  overflow: visible;
+
+  backdrop-filter: blur(10px);
+
+  box-shadow:
+    0 -4px 20px rgba(0,0,0,.25);
 }
 
-/* Redes sociales coloridas */
+/* CONTENEDOR */
+
+.footer-content {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+/* REDES */
+
 .social-icons {
   display: flex;
-  justify-content: center;
-  gap: 25px;
-  margin-bottom: 20px;
+
+  align-items: center;
+
+  gap: 14px;
+
+  flex-shrink: 0;
 }
+
+.social-item {
+  position: relative;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+}
+
+/* BOTONES */
 
 .social-btn {
-  color: white;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-radius: 50%;
-  padding: 12px;
-  font-size: 2rem;
+  width: 52px !important;
+
+  height: 42px !important;
+
+  border-radius: 14px !important;
+
+  color: white !important;
+
+  transition: .3s !important;
+
+  box-shadow:
+    0 4px 10px rgba(0,0,0,.25);
+
+  display: flex !important;
+
+  align-items: center !important;
+
+  justify-content: center !important;
 }
 
-/* Estilos específicos por red social */
-.social-btn.facebook {
-  background-color: #3b5998;
+.social-btn svg {
+  font-size: 22px !important;
 }
 
-.social-btn.youtube {
-  background-color: #ff0000;
-}
-
-.social-btn.whatsapp {
-  background-color: #25d366;
-}
-
-/* Hover animado */
 .social-btn:hover {
-  transform: scale(1.25);
-  box-shadow: 0 0 12px white;
+  transform:
+    translateY(-2px)
+    scale(1.04);
 }
 
-/* Imagen + texto animado */
-.marquee-container {
+/* FACEBOOK */
+
+.facebook {
+  background: linear-gradient(
+    135deg,
+    #1877f2,
+    #0d47a1
+  ) !important;
+}
+
+/* YOUTUBE */
+
+.youtube {
+  background: linear-gradient(
+    135deg,
+    #ff0000,
+    #b71c1c
+  ) !important;
+}
+
+/* WHATSAPP */
+
+.whatsapp {
+  background: linear-gradient(
+    135deg,
+    #00c853,
+    #009688
+  ) !important;
+}
+
+.active-whatsapp {
+  transform: scale(1.05);
+
+  box-shadow:
+    0 0 18px rgba(0,255,150,.35);
+}
+
+/* LABELS */
+
+.social-label {
+  margin-top: 4px !important;
+
+  font-size: 10px !important;
+
+  color: rgba(255,255,255,.92);
+}
+
+/* MENU WHATSAPP */
+
+.whatsapp-menu {
+  position: absolute;
+
+  bottom: 64px;
+
+  left: 0;
+
+  background: rgba(5,15,45,.98);
+
+  border-radius: 14px;
+
+  padding: 10px;
+
+  width: 220px;
+
   display: flex;
-  align-items: center;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  z-index: 9999;
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.35);
+}
+
+/* LINKS */
+
+.whatsapp-link {
+  color: white;
+
+  text-decoration: none;
+
+  font-size: 12px;
+
+  padding: 10px;
+
+  border-radius: 10px;
+
+  background: rgba(255,255,255,.05);
+
+  transition: .25s;
+}
+
+.whatsapp-link:hover {
+  background: linear-gradient(
+    90deg,
+    #00c853,
+    #009688
+  );
+}
+
+/* MARQUEE */
+
+.marquee-container {
+  flex: 1;
+
   overflow: hidden;
-  height: 100px;
-  position: relative;
+
+  min-width: 0;
 }
 
 .marquee-track {
   display: flex;
-  animation: marquee 20s linear infinite;
-  white-space: nowrap;
+
+  width: max-content;
+
+  animation: marquee 24s linear infinite;
+}
+
+.service-item {
+  display: flex;
+
   align-items: center;
-  gap: 40px;
+
+  gap: 8px;
+
+  margin-right: 28px;
 }
 
 .trailer-image img {
-  height: 80px;
+  width: 34px;
+
   object-fit: contain;
 }
 
 .marquee-text {
-  font-size: 1.2rem;
   white-space: nowrap;
-  font-weight: bold;
-  color: white;
+
+  font-size: 12px !important;
+
+  color: rgba(255,255,255,.94);
 }
 
+/* ANIMACIONES */
+
 @keyframes marquee {
-  0% {
-    transform: translateX(100%);
+
+  from {
+    transform: translateX(0);
   }
-  100% {
-    transform: translateX(-100%);
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+
+  .footer-content {
+    flex-direction: column;
+
+    gap: 10px;
+  }
+
+  .social-icons {
+    justify-content: center;
+
+    flex-wrap: wrap;
+  }
+
+  .marquee-container {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .footer-root {
+    padding: 8px;
+  }
+
+  .social-btn {
+    width: 46px !important;
+
+    height: 38px !important;
+  }
+
+  .social-btn svg {
+    font-size: 20px !important;
+  }
+
+  .marquee-text {
+    font-size: 11px !important;
+  }
+
+  .trailer-image img {
+    width: 28px;
+  }
+
+  .whatsapp-menu {
+    width: 200px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
   }
 }

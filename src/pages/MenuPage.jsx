@@ -1,5 +1,5 @@
 // src/pages/MenuPage.jsx
-import Sidebar from "../components/Sidebar/Sidebar";
+import Sidebar from "../components/Sidebar/sidebar";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Button, Box } from "@mui/material";

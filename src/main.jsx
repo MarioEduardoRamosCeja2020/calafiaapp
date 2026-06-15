@@ -3,8 +3,27 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
 
+// 🔥 MUI
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+// 🔥 Tema básico (puedes personalizar después)
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#00004e',
+    },
+    secondary: {
+      main: '#4B9C5F',
+    },
+  },
+});
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
   </React.StrictMode>
 );

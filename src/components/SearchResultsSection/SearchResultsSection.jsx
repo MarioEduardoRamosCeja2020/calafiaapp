@@ -12,6 +12,7 @@ import TruckLoader from "../TruckLoader/TruckLoader";
 import ResultsTable from "../ResultsTable/ResultsTable";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DescriptionIcon from "@mui/icons-material/Description";
+import API_URL from "../../config/api";
 
 function SearchResultsSection() {
   const [results, setResults] = useState([]);
@@ -27,10 +28,10 @@ function SearchResultsSection() {
     setError(null);
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/results/searchBySerieFolio?kindReport=carta%20porte&serie=${serie}&folio=${folio}`,
-        { method: "GET", cache: "no-store" }
-      );
+const response = await fetch(
+  `${API_URL}/results/searchBySerieFolio?kindReport=carta%20porte&serie=${serie}&folio=${folio}`,
+  { method: "GET" }
+);
 
       if (!response.ok) throw new Error("No se pudieron obtener los resultados");
 
@@ -48,7 +49,7 @@ function SearchResultsSection() {
   const handleDownload = (rutaXML) => {
     if (!rutaXML) return;
     const link = document.createElement("a");
-    link.href = `http://www.grupocalafia.com.mx/${rutaXML}`;
+    link.href =`https://www.grupocalafia.com.mx/${rutaXML}`;
     link.download = "archivo.xml";
     link.click();
   };
@@ -173,7 +174,7 @@ function SearchResultsSection() {
                 variant="contained"
                 color="error"
                 startIcon={<PictureAsPdfIcon />}
-                href={`http://www.grupocalafia.com.mx/${results[0]?.rutaPDF}`}
+                href={`https://www.grupocalafia.com.mx/${results[0]?.rutaPDF}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{
